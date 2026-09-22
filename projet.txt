@@ -1,0 +1,49 @@
+## Contexte du projet
+Je développe un mini-projet web appelé "Helpdesk". C'est une application qui permet à une entreprise de gérer les problèmes signalés par ses utilisateurs.
+
+Par exemple, un Client a un problème avec son ordinateur, son compte ou son réseau. Au lieu de demander directement au Support, il crée un Ticket dans l'application. Ce ticket reçoit une Catégorie. Le Support consulte ensuite ce ticket, traite le problème, répond au Client grâce à des Commentaires, et change le statut du ticket (Ouvert, En cours, Résolu, Fermé) jusqu'à ce que le problème soit résolu.
+
+Il y a 3 rôles dans le système :
+- **Client** : signale ses problèmes. Il peut créer, consulter, modifier ou supprimer ses propres tickets. Il voit le statut mais ne peut pas le modifier.
+- **Support** : traite les problèmes. Il consulte les tickets, change leur statut et répond au Client via des commentaires.
+- **Admin** : supervise tout le système. Il peut gérer les utilisateurs, les tickets, les catégories et les commentaires.
+
+Voici le schéma de ma base de données MySQL déjà créée (base "helpdesk"), que tu ne dois PAS modifier :
+
+CREATE TABLE utilisateur (
+    id_utilisateur INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    prenom VARCHAR(100) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    mot_de_passe VARCHAR(255) NOT NULL,
+    role ENUM('Client', 'Support', 'Admin') NOT NULL
+);
+
+CREATE TABLE categorie (
+    id_categorie INT AUTO_INCREMENT PRIMARY KEY,
+    nom_categorie VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE ticket (
+    id_ticket INT AUTO_INCREMENT PRIMARY KEY,
+    titre VARCHAR(200) NOT NULL,
+    description TEXT NOT NULL,
+    date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
+    statut ENUM('Ouvert', 'En cours', 'Résolu', 'Fermé') DEFAULT 'Ouvert',
+    id_utilisateur INT NOT NULL,
+    id_categorie INT NOT NULL,
+    FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_utilisateur),
+    FOREIGN KEY (id_categorie) REFERENCES categorie(id_categorie)
+);
+
+CREATE TABLE commentaire (
+    id_commentaire INT AUTO_INCREMENT PRIMARY KEY,
+    contenu TEXT NOT NULL,
+    date_commentaire DATETIME DEFAULT CURRENT_TIMESTAMP,
+    id_utilisateur INT NOT NULL,
+    id_ticket INT NOT NULL,
+    FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_utilisateur),
+    FOREIGN KEY (id_ticket) REFERENCES ticket(id_ticket)
+);
+
+Le projet est développé en PHP (procédural ou orienté objet simple, framework) + MySQL (PDO, requêtes préparées) + HTML/CSS + JavaScript si nécessaire.
