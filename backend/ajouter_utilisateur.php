@@ -1,48 +1,36 @@
 <?php
-// ajouter_utilisateur.php - Formulaire d'ajout d'un utilisateur
-require_once 'config.php';
+// ajouter_utilisateur.php - Formulaire d'ajout d'un utilisateur (Admin)
+require_once __DIR__ . '/config.php';
 
 $erreur = '';
 $nom = '';
 $prenom = '';
 $email = '';
-$role = 'Client';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nom = trim($_POST['nom'] ?? '');
     $prenom = trim($_POST['prenom'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $mot_de_passe = $_POST['mot_de_passe'] ?? '';
-    $role = trim($_POST['role'] ?? '');
 
-    $roles_autorises = ['Client', 'Support', 'Admin'];
-
-    // 1. Validation : champs non vides
-    if (empty($nom) || empty($prenom) || empty($email) || empty($mot_de_passe) || empty($role)) {
+    // Validation des champs
+    if (empty($nom) || empty($prenom) || empty($email) || empty($mot_de_passe)) {
         $erreur = "Tous les champs sont obligatoires.";
-    }
-    // 2. Validation : format email valide
-    elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $erreur = "L'adresse email n'est pas valide.";
-    }
-    // 3. Validation : rôle valide
-    elseif (!in_array($role, $roles_autorises)) {
-        $erreur = "Le rôle sélectionné n'est pas valide.";
     } else {
-        // 4. Validation : unicité de l'email
+        // Validation unicité de l'email
         $stmt = $pdo->prepare("SELECT id_utilisateur FROM utilisateur WHERE email = ?");
         $stmt->execute([$email]);
         if ($stmt->fetch()) {
             $erreur = "Cette adresse email est déjà utilisée par un autre compte.";
         } else {
-            // Hashage du mot de passe
             $mot_de_passe_hash = password_hash($mot_de_passe, PASSWORD_DEFAULT);
 
-            // Insertion en base de données avec requête préparée
-            $stmt = $pdo->prepare("INSERT INTO utilisateur (nom, prenom, email, mot_de_passe, role) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$nom, $prenom, $email, $mot_de_passe_hash, $role]);
+            // Insertion de l'utilisateur avec le rôle Admin
+            $stmt = $pdo->prepare("INSERT INTO utilisateur (nom, prenom, email, mot_de_passe, role) VALUES (?, ?, ?, ?, 'Admin')");
+            $stmt->execute([$nom, $prenom, $email, $mot_de_passe_hash]);
 
-            // Redirection vers la liste des utilisateurs
             header("Location: utilisateurs.php?success=added");
             exit;
         }
@@ -54,16 +42,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Helpdesk - Ajouter un utilisateur</title>
+    <title>Administration - Ajouter un utilisateur</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <header>
-        <h1>Helpdesk</h1>
+        <div class="logo">Helpdesk - Administration</div>
         <nav>
             <a href="index.php">Accueil</a>
-            <a href="utilisateurs.php">Gestion des Utilisateurs</a>
+            <a href="utilisateurs.php" class="active">Utilisateurs</a>
+            <a href="categories.php">Catégories</a>
+            <a href="tickets.php">Tickets</a>
+            <a href="commentaires.php">Commentaires</a>
         </nav>
     </header>
 
@@ -96,15 +87,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="form-group">
                 <label for="mot_de_passe">Mot de passe :</label>
                 <input type="password" id="mot_de_passe" name="mot_de_passe" class="form-control" required>
-            </div>
-
-            <div class="form-group">
-                <label for="role">Rôle :</label>
-                <select id="role" name="role" class="form-control" required>
-                    <option value="Client" <?= $role === 'Client' ? 'selected' : '' ?>>Client</option>
-                    <option value="Support" <?= $role === 'Support' ? 'selected' : '' ?>>Support</option>
-                    <option value="Admin" <?= $role === 'Admin' ? 'selected' : '' ?>>Admin</option>
-                </select>
             </div>
 
             <div class="form-actions">

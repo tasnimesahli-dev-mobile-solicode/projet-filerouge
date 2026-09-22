@@ -12,10 +12,13 @@
 <body>
 
     <header>
-        <div class="logo">Helpdesk</div>
+        <div class="logo">Helpdesk - Administration</div>
         <nav>
             <a href="index.php" class="active">Accueil</a>
-            <a href="utilisateurs.php">Gestion des utilisateurs</a>
+            <a href="utilisateurs.php">Utilisateurs</a>
+            <a href="categories.php">Catégories</a>
+            <a href="tickets.php">Tickets</a>
+            <a href="commentaires.php">Commentaires</a>
         </nav>
     </header>
 
@@ -24,42 +27,47 @@
         <section class="hero-section">
             <h1 class="main-title">Gestion des tickets et des problèmes utilisateurs</h1>
             <p class="subtitle">
-                Le système <strong>Helpdesk</strong> est une plateforme simple et efficace permettant d'enregistrer, d'organiser et de suivre la résolution des incidents techniques signalés par les utilisateurs de l'entreprise.
+                Plateforme d'administration centralisée du système <strong>Helpdesk</strong> permettant de superviser les utilisateurs, d'organiser les catégories d'incidents, de suivre les tickets d'assistance et de modérer les échanges.
             </p>
         </section>
 
-        <!-- Section explicative du principe -->
+        <!-- Grille des modules d'administration -->
         <section class="workflow-section">
-            <h2 class="section-title">Principe de fonctionnement</h2>
+            <h2 class="section-title">Espace d'Administration</h2>
             
-            <div class="steps-grid">
+            <div class="admin-modules-grid">
                 <div class="step-card">
-                    <div class="step-badge">1</div>
-                    <h3>Signaler un problème</h3>
-                    <p>L'utilisateur soumet un ticket décrivant la difficulté ou la panne rencontrée.</p>
+                    <div class="module-icon">👥</div>
+                    <h3>Utilisateurs</h3>
+                    <p>Gestion complète des comptes (afficher, ajouter, modifier, supprimer).</p>
+                    <a href="utilisateurs.php" class="btn btn-modifier" style="margin-top: 15px; font-size: 0.85rem;">Gérer les utilisateurs</a>
                 </div>
 
-                <div class="step-arrow">&rarr;</div>
-
                 <div class="step-card">
-                    <div class="step-badge">2</div>
-                    <h3>Traitement par le Support</h3>
-                    <p>L'équipe support prend en charge la demande, échange avec l'utilisateur et intervient.</p>
+                    <div class="module-icon">📁</div>
+                    <h3>Catégories</h3>
+                    <p>Organisation des catégories d'incidents (afficher, ajouter, modifier, supprimer).</p>
+                    <a href="categories.php" class="btn btn-modifier" style="margin-top: 15px; font-size: 0.85rem;">Gérer les catégories</a>
                 </div>
 
-                <div class="step-arrow">&rarr;</div>
+                <div class="step-card">
+                    <div class="module-icon">🎫</div>
+                    <h3>Tickets</h3>
+                    <p>Supervision des signalements d'incidents (afficher et supprimer les tickets).</p>
+                    <a href="tickets.php" class="btn btn-modifier" style="margin-top: 15px; font-size: 0.85rem;">Consulter les tickets</a>
+                </div>
 
                 <div class="step-card">
-                    <div class="step-badge">3</div>
-                    <h3>Résolution</h3>
-                    <p>Le problème est réglé, le ticket est mis à jour puis clôturé avec confirmation.</p>
+                    <div class="module-icon">💬</div>
+                    <h3>Commentaires</h3>
+                    <p>Consultation et modération des messages échangés (afficher et supprimer).</p>
+                    <a href="commentaires.php" class="btn btn-modifier" style="margin-top: 15px; font-size: 0.85rem;">Gérer les commentaires</a>
                 </div>
             </div>
         </section>
 
-        <!-- Bouton principal d'action -->
         <section class="cta-section">
-            <a href="utilisateurs.php" class="btn btn-cta">Gestion des utilisateurs</a>
+            <a href="utilisateurs.php" class="btn btn-cta">Accéder à l'Administration</a>
         </section>
     </main>
 

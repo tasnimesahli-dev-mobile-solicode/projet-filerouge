@@ -1,4 +1,4 @@
-/* style.css - Feuille de style globale pour Helpdesk */
+/* style.css - Feuille de style globale pour Helpdesk (Administration) */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -50,7 +50,7 @@ nav a.active {
 
 /* Conteneur principal */
 .container {
-    max-width: 1000px;
+    max-width: 1050px;
     margin: 0 auto;
     background-color: #ffffff;
     padding: 35px;
@@ -76,9 +76,9 @@ nav a.active {
 /* Boutons */
 .btn {
     display: inline-block;
-    padding: 9px 18px;
+    padding: 8px 16px;
     border-radius: 6px;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 600;
     text-decoration: none;
     cursor: pointer;
@@ -125,7 +125,7 @@ nav a.active {
     box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
 }
 
-/* Page d'accueil - Hero & Présentation */
+/* Page d'accueil - Hero */
 .home-container {
     text-align: center;
     padding: 45px 35px;
@@ -133,7 +133,7 @@ nav a.active {
 
 .hero-section {
     max-width: 800px;
-    margin: 0 auto 40px auto;
+    margin: 0 auto 35px auto;
 }
 
 .main-title {
@@ -146,16 +146,15 @@ nav a.active {
 }
 
 .subtitle {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     color: #475569;
     line-height: 1.7;
     margin-bottom: 10px;
 }
 
-/* Section Principe de fonctionnement */
 .workflow-section {
-    margin: 45px 0;
-    padding: 35px 20px;
+    margin: 35px 0;
+    padding: 30px 20px;
     background-color: #f8fafc;
     border-radius: 10px;
     border: 1px solid #edf2f7;
@@ -165,21 +164,16 @@ nav a.active {
     font-size: 1.35rem;
     font-weight: 700;
     color: #1e293b;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
 }
 
-.steps-grid {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
+.admin-modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 20px;
 }
 
 .step-card {
-    flex: 1;
-    min-width: 220px;
-    max-width: 270px;
     background: #ffffff;
     padding: 24px 20px;
     border-radius: 8px;
@@ -194,57 +188,26 @@ nav a.active {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
 }
 
-.step-badge {
-    width: 36px;
-    height: 36px;
-    line-height: 36px;
-    background-color: #2563eb;
-    color: #ffffff;
-    font-weight: 700;
-    font-size: 1rem;
-    border-radius: 50%;
-    margin: 0 auto 14px auto;
+.module-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
 }
 
 .step-card h3 {
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     color: #0f172a;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     font-weight: 700;
 }
 
 .step-card p {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #64748b;
     line-height: 1.5;
 }
 
-.step-arrow {
-    font-size: 1.6rem;
-    color: #94a3b8;
-    font-weight: bold;
-    user-select: none;
-}
-
-@media (max-width: 768px) {
-    .step-arrow {
-        display: none;
-    }
-    .steps-grid {
-        flex-direction: column;
-    }
-    .step-card {
-        max-width: 100%;
-        width: 100%;
-    }
-    .main-title {
-        font-size: 1.6rem;
-    }
-}
-
-/* Action principale */
 .cta-section {
-    margin-top: 40px;
+    margin-top: 35px;
 }
 
 /* Tableau lisible */
@@ -287,19 +250,45 @@ table tbody tr:hover {
     font-weight: 600;
 }
 
-.badge-client {
-    background-color: #e0f2fe;
-    color: #0369a1;
-}
-
-.badge-support {
-    background-color: #fef3c7;
-    color: #92400e;
-}
-
 .badge-admin {
-    background-color: #fce7f3;
-    color: #9d174d;
+    background-color: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+}
+
+/* Badges de statut de ticket */
+.badge-statut {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.badge-ouvert {
+    background-color: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+}
+
+.badge-en-cours {
+    background-color: #fffbeb;
+    color: #b45309;
+    border: 1px solid #fde68a;
+}
+
+.badge-resolu {
+    background-color: #f0fdf4;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+}
+
+.badge-ferme {
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
 }
 
 .actions-cell {

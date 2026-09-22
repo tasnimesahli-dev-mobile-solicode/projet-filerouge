@@ -1,21 +1,25 @@
 <?php
-// utilisateurs.php - Liste et suppression des utilisateurs
-require_once 'config.php';
+// utilisateurs.php - Gestion des utilisateurs (Admin)
+require_once __DIR__ . '/config.php';
 
 $message_erreur = '';
 $message_succes = '';
 
-// Traitement de la suppression
+// Traitement de la suppression d'un utilisateur
 if (isset($_GET['action']) && $_GET['action'] === 'supprimer' && isset($_GET['id'])) {
     $id_a_supprimer = (int)$_GET['id'];
 
     try {
+        // Suppression des commentaires et tickets associés pour respecter les contraintes
+        $pdo->prepare("DELETE FROM commentaire WHERE id_utilisateur = ?")->execute([$id_a_supprimer]);
+        $pdo->prepare("DELETE FROM ticket WHERE id_utilisateur = ?")->execute([$id_a_supprimer]);
+
         $stmt = $pdo->prepare("DELETE FROM utilisateur WHERE id_utilisateur = ?");
         $stmt->execute([$id_a_supprimer]);
         header("Location: utilisateurs.php?success=deleted");
         exit;
     } catch (PDOException $e) {
-        $message_erreur = "Impossible de supprimer cet utilisateur : il est associé à d'autres enregistrements (tickets ou commentaires).";
+        $message_erreur = "Erreur lors de la suppression de l'utilisateur : " . $e->getMessage();
     }
 }
 
@@ -39,22 +43,25 @@ $utilisateurs = $stmt->fetchAll();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Helpdesk - Gestion des Utilisateurs</title>
+    <title>Administration - Utilisateurs</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <header>
-        <h1>Helpdesk</h1>
+        <div class="logo">Helpdesk - Administration</div>
         <nav>
             <a href="index.php">Accueil</a>
-            <a href="utilisateurs.php">Gestion des Utilisateurs</a>
+            <a href="utilisateurs.php" class="active">Utilisateurs</a>
+            <a href="categories.php">Catégories</a>
+            <a href="tickets.php">Tickets</a>
+            <a href="commentaires.php">Commentaires</a>
         </nav>
     </header>
 
     <div class="container">
         <div class="page-header">
-            <h2>Liste des Utilisateurs</h2>
+            <h2>Gestion des Utilisateurs</h2>
             <a href="ajouter_utilisateur.php" class="btn btn-ajouter">+ Ajouter un utilisateur</a>
         </div>
 
@@ -86,20 +93,12 @@ $utilisateurs = $stmt->fetchAll();
                     <?php else: ?>
                         <?php foreach ($utilisateurs as $user): ?>
                             <tr>
-                                <td><?= htmlspecialchars($user['id_utilisateur']) ?></td>
+                                <td>#<?= htmlspecialchars($user['id_utilisateur']) ?></td>
                                 <td><?= htmlspecialchars($user['nom']) ?></td>
                                 <td><?= htmlspecialchars($user['prenom']) ?></td>
                                 <td><?= htmlspecialchars($user['email']) ?></td>
                                 <td>
-                                    <?php 
-                                        $badgeClass = 'badge-client';
-                                        if ($user['role'] === 'Support') {
-                                            $badgeClass = 'badge-support';
-                                        } elseif ($user['role'] === 'Admin') {
-                                            $badgeClass = 'badge-admin';
-                                        }
-                                    ?>
-                                    <span class="badge <?= $badgeClass ?>"><?= htmlspecialchars($user['role']) ?></span>
+                                    <span class="badge badge-admin"><?= htmlspecialchars($user['role']) ?></span>
                                 </td>
                                 <td>
                                     <div class="actions-cell">
