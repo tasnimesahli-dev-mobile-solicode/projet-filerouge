@@ -42,6 +42,7 @@ CREATE TABLE commentaire (
 
     FOREIGN KEY (id_ticket)
         REFERENCES ticket(id_ticket)
+        ON DELETE CASCADE
 );
 INSERT INTO utilisateur (nom, prenom, email, mot_de_passe, role)
 VALUES ('Admin', 'System', 'admin@helpdesk.com', '123456', 'Admin');

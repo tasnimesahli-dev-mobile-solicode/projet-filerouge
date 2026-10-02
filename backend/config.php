@@ -1,17 +1,26 @@
 <?php
-// Configuration de la connexion à la base de données avec PDO
-$host = 'localhost';
-$dbname = 'helpdesk';
-$username = 'root';
-$password = '12345678';
+// backend/config.php - Connexion à la base de données avec MySQLi
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password, [
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES   => false,
-    ]);
-} catch (PDOException $e) {
-    die("Erreur de connexion à la base de données : " . $e->getMessage());
+$host = 'localhost';
+$user = 'root';
+$dbname = 'helpdesk';
+$port = 3306;
+
+// Liste des mots de passe courants (configuration locale / XAMPP / Laragon)
+$passwords = ['12345678', ''];
+$conn = false;
+
+foreach ($passwords as $pwd) {
+    $conn = @mysqli_connect($host, $user, $pwd, $dbname, $port);
+    if ($conn) {
+        break;
+    }
 }
+
+if (!$conn) {
+    die("Erreur de connexion à la base de données MySQL : " . mysqli_connect_error());
+}
+
+// Configuration du jeu de caractères en utf8mb4
+mysqli_set_charset($conn, "utf8mb4");
 ?>

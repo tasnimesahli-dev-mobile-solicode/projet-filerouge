@@ -1,4 +1,5 @@
 <?php
-// Redirection automatique vers le dossier backend
-header("Location: backend/index.php");
+// index.php - Redirection vers la page d'administration des tickets
+header("Location: backend/tickets.php");
 exit;
+?>
