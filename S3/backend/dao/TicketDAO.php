@@ -1,6 +1,5 @@
 <?php
-// S3/backend/dao/TicketDAO.php
-// Tier 3 — Data Access : requêtes SQL pour la table `ticket`
+// S3/backend/dao/TicketDAO.php - Tier 3 : Data Access Object pour `ticket`
 
 require_once __DIR__ . '/../classes/Ticket.php';
 
@@ -13,45 +12,40 @@ class TicketDAO
         $this->pdo = $pdo;
     }
 
-    /**
-     * Tous les tickets avec détails (nom catégorie, nom utilisateur).
-     */
+    /** Tous les tickets avec détails (nom catégorie, nom utilisateur) */
     public function findAllWithDetails(): array
     {
-        $stmt = $this->pdo->query("
+        $sql = "
             SELECT t.*,
                    c.nom_categorie,
                    CONCAT(u.prenom, ' ', u.nom) AS nom_complet_utilisateur
-            FROM   ticket t
-            JOIN   categorie   c ON t.id_categorie   = c.id_categorie
-            JOIN   utilisateur u ON t.id_utilisateur  = u.id_utilisateur
+            FROM ticket t
+            JOIN categorie c ON t.id_categorie = c.id_categorie
+            JOIN utilisateur u ON t.id_utilisateur = u.id_utilisateur
             ORDER BY t.date_creation DESC
-        ");
+        ";
+        $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll();
     }
 
-    /**
-     * Un ticket avec détails par son ID, ou null.
-     */
+    /** Un ticket avec détails par son ID */
     public function findByIdWithDetails(int $id): ?array
     {
         $stmt = $this->pdo->prepare("
             SELECT t.*,
                    c.nom_categorie,
                    CONCAT(u.prenom, ' ', u.nom) AS nom_complet_utilisateur
-            FROM   ticket t
-            JOIN   categorie   c ON t.id_categorie   = c.id_categorie
-            JOIN   utilisateur u ON t.id_utilisateur  = u.id_utilisateur
-            WHERE  t.id_ticket = ?
+            FROM ticket t
+            JOIN categorie c ON t.id_categorie = c.id_categorie
+            JOIN utilisateur u ON t.id_utilisateur = u.id_utilisateur
+            WHERE t.id_ticket = ?
         ");
         $stmt->execute([$id]);
         $row = $stmt->fetch();
         return $row ?: null;
     }
 
-    /**
-     * Un ticket simple (entité Ticket) par son ID, ou null.
-     */
+    /** Un ticket simple (entité Ticket) */
     public function findById(int $id): ?Ticket
     {
         $stmt = $this->pdo->prepare("SELECT * FROM ticket WHERE id_ticket = ?");
@@ -69,9 +63,7 @@ class TicketDAO
         );
     }
 
-    /**
-     * Insertion d'un nouveau ticket.
-     */
+    /** Insertion d'un nouveau ticket */
     public function insert(Ticket $t): bool
     {
         $stmt = $this->pdo->prepare(
@@ -87,9 +79,7 @@ class TicketDAO
         ]);
     }
 
-    /**
-     * Mise à jour d'un ticket existant.
-     */
+    /** Mise à jour d'un ticket existant */
     public function update(Ticket $t): bool
     {
         $stmt = $this->pdo->prepare(
@@ -107,9 +97,7 @@ class TicketDAO
         ]);
     }
 
-    /**
-     * Suppression par ID.
-     */
+    /** Suppression par ID */
     public function delete(int $id): bool
     {
         $stmt = $this->pdo->prepare("DELETE FROM ticket WHERE id_ticket = ?");

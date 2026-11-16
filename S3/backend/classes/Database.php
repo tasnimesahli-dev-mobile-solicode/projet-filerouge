@@ -1,6 +1,6 @@
 <?php
-// S3/backend/classes/Database.php — Singleton PDO
-// Tier 3 — Support : connexion MySQL
+// S3/backend/classes/Database.php - Singleton PDO
+// Architecture 3 Tiers - Couche Support
 
 class Database
 {
@@ -27,6 +27,7 @@ class Database
     private function connect(): PDO
     {
         $lastException = null;
+
         foreach ($this->passwords as $pwd) {
             try {
                 $dsn = "mysql:host={$this->host};port={$this->port};dbname={$this->dbname};charset=utf8mb4";
@@ -40,13 +41,13 @@ class Database
                 $lastException = $e;
             }
         }
+
         http_response_code(500);
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode([
             'success' => false,
-            'message' => 'Erreur de connexion à la base de données : '
-                       . ($lastException ? $lastException->getMessage() : 'Connexion impossible'),
-        ]);
+            'message' => 'Erreur de connexion à la base de données : ' . ($lastException ? $lastException->getMessage() : 'Impossible de se connecter')
+        ], JSON_UNESCAPED_UNICODE);
         exit;
     }
 }

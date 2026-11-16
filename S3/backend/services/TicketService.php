@@ -1,24 +1,25 @@
 <?php
-// S3/backend/services/TicketService.php
-// Tier 2 — Gestion des tickets liés aux catégories
+// S3/backend/services/TicketService.php - Tier 2 : Dépendances tickets par catégorie
 // Exception inline : HasDependenciesException
 
 require_once __DIR__ . '/BaseService.php';
 require_once __DIR__ . '/../dao/CategorieDAO.php';
 
-// ── Exception ─────────────────────────────────────────────────────────────────
+// ── Exception Métier ──────────────────────────────────────────────────────────
 
 class HasDependenciesException extends RuntimeException
 {
-    private int $nbTickets;
-    public function __construct(int $nbTickets)
+    private int $ticketCount;
+
+    public function __construct(int $count)
     {
-        $this->nbTickets = $nbTickets;
+        $this->ticketCount = $count;
         parent::__construct(
-            "Impossible de supprimer cette catégorie car {$nbTickets} ticket(s) y sont actuellement associés."
+            "Impossible de supprimer cette catégorie car {$count} ticket(s) y sont actuellement associés."
         );
     }
-    public function getNbTickets(): int { return $this->nbTickets; }
+
+    public function getTicketCount(): int { return $this->ticketCount; }
 }
 
 // ── Service ───────────────────────────────────────────────────────────────────
@@ -33,21 +34,16 @@ class TicketService extends BaseService
         $this->dao = $dao;
     }
 
-    /** Nombre de tickets liés à une catégorie */
     public function countByCategorie(int $categorieId): int
     {
         return $this->dao->countTicketsByCategorie($categorieId);
     }
 
-    /**
-     * Lève une exception si des tickets sont rattachés à la catégorie.
-     * @throws HasDependenciesException
-     */
     public function assertNoDependencies(int $categorieId): void
     {
-        $nb = $this->countByCategorie($categorieId);
-        if ($nb > 0) {
-            throw new HasDependenciesException($nb);
+        $count = $this->countByCategorie($categorieId);
+        if ($count > 0) {
+            throw new HasDependenciesException($count);
         }
     }
 }

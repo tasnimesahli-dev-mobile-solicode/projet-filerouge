@@ -1,21 +1,22 @@
 <?php
-// S3/backend/services/ValidationService.php
-// Tier 2 — Validation métier
+// S3/backend/services/ValidationService.php - Tier 2 : Validation métier
 // Exceptions inline : ValidationException, DuplicateException
 
 require_once __DIR__ . '/BaseService.php';
 require_once __DIR__ . '/../dao/CategorieDAO.php';
 
-// ── Exceptions ────────────────────────────────────────────────────────────────
+// ── Exceptions Métier ─────────────────────────────────────────────────────────
 
 class ValidationException extends RuntimeException
 {
     private array $errors;
+
     public function __construct(array $errors)
     {
         $this->errors = $errors;
         parent::__construct($errors[0] ?? 'Données invalides.');
     }
+
     public function getErrors(): array { return $this->errors; }
 }
 
@@ -39,10 +40,6 @@ class ValidationService extends BaseService
         $this->dao = $dao;
     }
 
-    /**
-     * Valide le nom d'une catégorie.
-     * @throws ValidationException
-     */
     public function validateNom(string $nom): void
     {
         $errors = [];
@@ -58,10 +55,6 @@ class ValidationService extends BaseService
         }
     }
 
-    /**
-     * Valide la description d'une catégorie (optionnelle).
-     * @throws ValidationException
-     */
     public function validateDescription(?string $desc): void
     {
         if ($desc !== null && mb_strlen($desc) > 255) {
@@ -69,10 +62,6 @@ class ValidationService extends BaseService
         }
     }
 
-    /**
-     * Valide les données d'un ticket.
-     * @throws ValidationException
-     */
     public function validateTicketData(array $data): void
     {
         $errors = [];
@@ -91,7 +80,7 @@ class ValidationService extends BaseService
 
         $validStatuts = ['Ouvert', 'En cours', 'Résolu', 'Fermé'];
         if (!in_array($statut, $validStatuts)) { $errors[] = "Statut invalide."; }
-        if ($idCat  <= 0)                      { $errors[] = "La catégorie est obligatoire."; }
+        if ($idCat <= 0)                       { $errors[] = "La catégorie est obligatoire."; }
         if ($idUser <= 0)                      { $errors[] = "L'utilisateur est obligatoire."; }
 
         if (!empty($errors)) {
@@ -99,10 +88,6 @@ class ValidationService extends BaseService
         }
     }
 
-    /**
-     * Vérifie l'unicité du nom de catégorie.
-     * @throws DuplicateException
-     */
     public function checkUniqueness(string $nom, ?int $excludeId = null): void
     {
         $existing = $this->dao->findByName($nom, $excludeId);
@@ -114,3 +99,4 @@ class ValidationService extends BaseService
         }
     }
 }
+

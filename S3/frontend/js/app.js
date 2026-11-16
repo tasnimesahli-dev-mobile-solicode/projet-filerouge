@@ -1,556 +1,681 @@
-// S3/frontend/js/app.js
-// Architecture 3 Tiers — Tier 1 Présentation (Fetch API + DOM)
+// Helpdesk - Application Frontend
 
 'use strict';
 
-// ── URLs API ──────────────────────────────────────────────────────────────────
+// ── Endpoints API Backend ─────────────────────────────────────────────────────
 const CATEGORIES_API = '../backend/api/categories.php';
 const TICKETS_API    = '../backend/api/tickets.php';
 const USERS_API      = '../backend/api/utilisateurs.php';
 
-// ── État global ───────────────────────────────────────────────────────────────
-let currentSection    = 'categories';
-let currentDeleteType = null;   // 'category' | 'ticket'
+// ── État Global ───────────────────────────────────────────────────────────────
+let currentSection    = 'categories'; // 'categories' | 'tickets'
+let currentDeleteType = null;         // 'category' | 'ticket'
 let currentDeleteId   = null;
-let currentDeleteName = '';
-let allCategories     = [];     // cache pour filtre
-let allTickets        = [];     // cache pour filtre
+let allCategories     = [];
+let allTickets        = [];
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function navigateTo(section) {
-  currentSection = section;
+    currentSection = section;
 
-  // Sidebar — bouton actif
-  document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.classList.remove('bg-indigo-600', 'text-white');
-    btn.classList.add('text-slate-300');
-  });
-  const activeBtn = document.getElementById('nav-' + section);
-  if (activeBtn) {
-    activeBtn.classList.add('bg-indigo-600', 'text-white');
-    activeBtn.classList.remove('text-slate-300');
-  }
+    // Sidebar - Mise en évidence du bouton actif
+    const btnCat = document.getElementById('nav-categories');
+    const btnTick = document.getElementById('nav-tickets');
 
-  // Topbar
-  if (section === 'categories') {
-    document.getElementById('page-title').textContent    = 'Catégories';
-    document.getElementById('page-subtitle').textContent = 'Gérez vos catégories de tickets';
-    document.getElementById('btn-ajouter-label').textContent = 'Nouvelle catégorie';
-    showView('view-categories-liste');
-    loadCategories();
-  } else {
-    document.getElementById('page-title').textContent    = 'Tickets';
-    document.getElementById('page-subtitle').textContent = 'Gérez vos tickets de support';
-    document.getElementById('btn-ajouter-label').textContent = 'Nouveau ticket';
-    showView('view-tickets-liste');
-    loadTickets();
-  }
+    if (section === 'categories') {
+        btnCat.className = 'nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold bg-indigo-600 text-white shadow-sm transition';
+        btnTick.className = 'nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition';
+
+        document.getElementById('page-title').textContent = 'Gestion des Catégories';
+        document.getElementById('btn-top-label').textContent = 'Nouvelle Catégorie';
+
+        showView('view-categories-liste');
+        loadCategories();
+    } else {
+        btnCat.className = 'nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition';
+        btnTick.className = 'nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold bg-indigo-600 text-white shadow-sm transition';
+
+        document.getElementById('page-title').textContent = 'Gestion des Tickets';
+        document.getElementById('btn-top-label').textContent = 'Nouveau Ticket';
+
+        showView('view-tickets-liste');
+        loadTickets();
+    }
 }
 
-/** Affiche une seule section, cache les autres */
 function showView(viewId) {
-  document.querySelectorAll('.view-section').forEach(s => s.classList.add('hidden'));
-  const target = document.getElementById(viewId);
-  if (target) target.classList.remove('hidden');
+    document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+    const target = document.getElementById(viewId);
+    if (target) target.classList.remove('hidden');
 }
 
-/** Appelé par le bouton "+ Ajouter" de la topbar */
 function onAddClick() {
-  if (currentSection === 'categories') {
-    showAddCategoryForm();
-  } else {
-    showAddTicketForm();
-  }
+    if (currentSection === 'categories') {
+        showAddCategoryForm();
+    } else {
+        showAddTicketForm();
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// CATÉGORIES — CRUD
+// CATÉGORIES - CRUD
 // ═══════════════════════════════════════════════════════════════════════════════
 
 async function loadCategories() {
-  try {
-    const res  = await fetch(CATEGORIES_API);
-    const json = await res.json();
-    if (!json.success) throw new Error(json.message);
-    allCategories = json.data;
-    document.getElementById('cat-count').textContent = `${allCategories.length} catégorie(s)`;
-    renderCategories(allCategories);
-  } catch (err) {
-    document.getElementById('categories-tbody').innerHTML =
-      `<tr><td colspan="4" class="px-5 py-10 text-center text-red-400">${escHtml(err.message)}</td></tr>`;
-  }
+    try {
+        const res = await fetch(CATEGORIES_API);
+        const json = await res.json();
+        if (!json.success) throw new Error(json.message);
+
+        allCategories = json.data;
+        updateCategoryStats(allCategories);
+        renderCategories(allCategories);
+    } catch (err) {
+        document.getElementById('categoriesTableBody').innerHTML = `
+            <tr><td colspan="4" class="px-6 py-12 text-center text-rose-500 font-medium">
+                ⚠️ Erreur de chargement des catégories : ${escHtml(err.message)}
+            </td></tr>
+        `;
+    }
+}
+
+function updateCategoryStats(list) {
+    const total = list.length;
+    const totalTickets = list.reduce((acc, c) => acc + (parseInt(c.nb_tickets, 10) || 0), 0);
+    document.getElementById('statTotalCat').textContent = total;
+    document.getElementById('statTicketsCat').textContent = totalTickets;
+    document.getElementById('filteredCatCount').textContent = total;
 }
 
 function renderCategories(list) {
-  const tbody = document.getElementById('categories-tbody');
-  if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="4" class="px-5 py-10 text-center text-slate-400">Aucune catégorie trouvée.</td></tr>`;
-    return;
-  }
-  tbody.innerHTML = list.map(c => {
-    const descHtml = c.description
-      ? `<div class="text-xs text-slate-400 mt-0.5">${escHtml(c.description)}</div>`
-      : '';
-    const nb = parseInt(c.nb_tickets, 10) || 0;
-    const nbBadge = nb > 0
-      ? `<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">${nb}</span>`
-      : `<span class="text-slate-400 text-xs">0</span>`;
-    const canDelete = nb === 0;
-    return `<tr class="hover:bg-slate-50 transition-colors">
-      <td class="px-5 py-3 text-slate-400 font-mono text-xs">#${c.id_categorie}</td>
-      <td class="px-5 py-3">
-        <div class="font-medium text-slate-800">${escHtml(c.nom_categorie)}</div>
-        ${descHtml}
-      </td>
-      <td class="px-5 py-3 text-center">${nbBadge}</td>
-      <td class="px-5 py-3 text-center">
-        <div class="flex items-center justify-center gap-2">
-          <button onclick="showEditCategoryForm(${c.id_categorie})"
-                  title="Modifier"
-                  class="p-1.5 rounded-lg text-amber-500 hover:bg-amber-50 transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-            </svg>
-          </button>
-          <button onclick="confirmDeleteCategory(${c.id_categorie}, '${escAttr(c.nom_categorie)}', ${nb})"
-                  title="${canDelete ? 'Supprimer' : 'Impossible : tickets liés'}"
-                  ${canDelete ? '' : 'disabled'}
-                  class="p-1.5 rounded-lg transition-colors ${canDelete
-                    ? 'text-red-500 hover:bg-red-50'
-                    : 'text-slate-300 cursor-not-allowed'}">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-            </svg>
-          </button>
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
+    const tbody = document.getElementById('categoriesTableBody');
+    if (!list.length) {
+        tbody.innerHTML = `
+            <tr id="emptyRow">
+                <td colspan="4" class="px-6 py-12 text-center text-slate-400">
+                    <span class="text-3xl block mb-2">📭</span>
+                    Aucune catégorie trouvée.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = list.map(c => {
+        const nb = parseInt(c.nb_tickets, 10) || 0;
+        const nbBadge = nb > 0
+            ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">${nb} ticket(s)</span>`
+            : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">0 ticket</span>`;
+
+        const descHtml = c.description
+            ? `<p class="text-xs text-slate-500 category-desc mt-0.5">${escHtml(c.description)}</p>`
+            : `<p class="text-xs text-slate-400 italic category-desc mt-0.5">Aucune description</p>`;
+
+        return `
+            <tr id="row-cat-${c.id_categorie}" class="hover:bg-slate-50/80 transition duration-150">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-400">
+                    #${c.id_categorie}
+                </td>
+                <td class="px-6 py-4">
+                    <div class="flex items-start">
+                        <span class="h-8 w-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm mr-3 flex-shrink-0 mt-0.5">
+                            📁
+                        </span>
+                        <div>
+                            <span class="text-sm font-semibold text-slate-900 category-name">
+                                ${escHtml(c.nom_categorie)}
+                            </span>
+                            ${descHtml}
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                    ${nbBadge}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                    <button onclick="showEditCategoryForm(${c.id_categorie})" 
+                            class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold text-brand-600 bg-brand-50 hover:bg-brand-100 transition">
+                        Modifier
+                    </button>
+                    <button onclick="confirmDeleteCategory(${c.id_categorie}, '${escAttr(c.nom_categorie)}', ${nb})" 
+                            class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 transition">
+                        Supprimer
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
 
 function filterCategories() {
-  const q = document.getElementById('search-categories').value.trim().toLowerCase();
-  const filtered = q
-    ? allCategories.filter(c =>
-        c.nom_categorie.toLowerCase().includes(q) ||
-        (c.description || '').toLowerCase().includes(q)
-      )
-    : allCategories;
-  document.getElementById('cat-count').textContent = `${filtered.length} catégorie(s)`;
-  renderCategories(filtered);
+    const input = document.getElementById('searchCategories').value.trim().toLowerCase();
+    const filtered = input
+        ? allCategories.filter(c =>
+            c.nom_categorie.toLowerCase().includes(input) ||
+            (c.description || '').toLowerCase().includes(input)
+        )
+        : allCategories;
+
+    document.getElementById('filteredCatCount').textContent = filtered.length;
+    renderCategories(filtered);
 }
 
 function showAddCategoryForm() {
-  document.getElementById('add-cat-nom').value  = '';
-  document.getElementById('add-cat-desc').value = '';
-  hideFormAlert('add-cat-alert');
-  showView('view-categories-ajout');
-  document.getElementById('add-cat-nom').focus();
+    document.getElementById('formAddCategory').reset();
+    hideAlert('addCatAlert');
+    showView('view-categories-ajout');
+    document.getElementById('addCatNom').focus();
 }
 
 async function showEditCategoryForm(id) {
-  showView('view-categories-modifier');
-  hideFormAlert('edit-cat-alert');
-  try {
-    const res  = await fetch(`${CATEGORIES_API}?id=${id}`);
-    const json = await res.json();
-    if (!json.success) throw new Error(json.message);
-    const c = json.data;
-    document.getElementById('edit-cat-id').value   = c.id_categorie;
-    document.getElementById('edit-cat-nom').value  = c.nom_categorie;
-    document.getElementById('edit-cat-desc').value = c.description || '';
-    document.getElementById('edit-cat-nom').focus();
-  } catch (err) {
-    showFormAlert('edit-cat-alert', 'edit-cat-icon', 'edit-cat-text', err.message, 'error');
-  }
+    hideAlert('editCatAlert');
+    showView('view-categories-modifier');
+
+    try {
+        const res = await fetch(`${CATEGORIES_API}?id=${id}`);
+        const json = await res.json();
+        if (!json.success) throw new Error(json.message);
+
+        const c = json.data;
+        document.getElementById('editCatId').value = c.id_categorie;
+        document.getElementById('editCatNom').value = c.nom_categorie;
+        document.getElementById('editCatDesc').value = c.description || '';
+        document.getElementById('editCatBadge').textContent = `ID #${c.id_categorie} · ${c.nb_tickets || 0} ticket(s)`;
+        document.getElementById('editCatNom').focus();
+    } catch (err) {
+        showAlert('editCatAlert', 'editCatAlertIcon', 'editCatAlertText', err.message, 'error');
+    }
 }
 
 async function submitAddCategory(e) {
-  e.preventDefault();
-  hideFormAlert('add-cat-alert');
-  setLoading('btn-submit-add-cat', 'spin-add-cat', true);
-  try {
-    const body = {
-      nom_categorie: document.getElementById('add-cat-nom').value.trim(),
-      description:   document.getElementById('add-cat-desc').value.trim() || null,
+    e.preventDefault();
+    hideAlert('addCatAlert');
+    setLoading('btnSubmitAddCat', 'spinAddCat', true);
+
+    const payload = {
+        nom_categorie: document.getElementById('addCatNom').value.trim(),
+        description:   document.getElementById('addCatDesc').value.trim() || null
     };
-    const res  = await fetch(CATEGORIES_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    const json = await res.json();
-    if (!json.success) throw new Error(json.message);
-    showToast('Catégorie créée avec succès !', 'success');
-    navigateTo('categories');
-  } catch (err) {
-    showFormAlert('add-cat-alert', 'add-cat-icon', 'add-cat-text', err.message, 'error');
-  } finally {
-    setLoading('btn-submit-add-cat', 'spin-add-cat', false);
-  }
+
+    try {
+        const res = await fetch(CATEGORIES_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+
+        if (res.ok && json.success) {
+            showToast("Catégorie créée avec succès !", 'success');
+            navigateTo('categories');
+        } else {
+            showAlert('addCatAlert', 'addCatAlertIcon', 'addCatAlertText', json.message || "Erreur de création.", 'error');
+        }
+    } catch (err) {
+        showAlert('addCatAlert', 'addCatAlertIcon', 'addCatAlertText', "Erreur réseau avec le serveur.", 'error');
+    } finally {
+        setLoading('btnSubmitAddCat', 'spinAddCat', false);
+    }
 }
 
 async function submitEditCategory(e) {
-  e.preventDefault();
-  hideFormAlert('edit-cat-alert');
-  setLoading('btn-submit-edit-cat', 'spin-edit-cat', true);
-  const id = document.getElementById('edit-cat-id').value;
-  try {
-    const body = {
-      nom_categorie: document.getElementById('edit-cat-nom').value.trim(),
-      description:   document.getElementById('edit-cat-desc').value.trim() || null,
+    e.preventDefault();
+    hideAlert('editCatAlert');
+    setLoading('btnSubmitEditCat', 'spinEditCat', true);
+
+    const id = document.getElementById('editCatId').value;
+    const payload = {
+        nom_categorie: document.getElementById('editCatNom').value.trim(),
+        description:   document.getElementById('editCatDesc').value.trim() || null
     };
-    const res  = await fetch(`${CATEGORIES_API}?id=${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    const json = await res.json();
-    if (!json.success) throw new Error(json.message);
-    showToast('Catégorie mise à jour !', 'success');
-    navigateTo('categories');
-  } catch (err) {
-    showFormAlert('edit-cat-alert', 'edit-cat-icon', 'edit-cat-text', err.message, 'error');
-  } finally {
-    setLoading('btn-submit-edit-cat', 'spin-edit-cat', false);
-  }
+
+    try {
+        const res = await fetch(`${CATEGORIES_API}?id=${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+
+        if (res.ok && json.success) {
+            showToast("Catégorie mise à jour avec succès !", 'success');
+            navigateTo('categories');
+        } else {
+            showAlert('editCatAlert', 'editCatAlertIcon', 'editCatAlertText', json.message || "Erreur de mise à jour.", 'error');
+        }
+    } catch (err) {
+        showAlert('editCatAlert', 'editCatAlertIcon', 'editCatAlertText', "Erreur réseau avec le serveur.", 'error');
+    } finally {
+        setLoading('btnSubmitEditCat', 'spinEditCat', false);
+    }
 }
 
-function confirmDeleteCategory(id, name, nb) {
-  if (nb > 0) return;
-  currentDeleteType = 'category';
-  currentDeleteId   = id;
-  currentDeleteName = name;
-  document.getElementById('modal-delete-title').textContent = 'Supprimer la catégorie';
-  document.getElementById('modal-delete-body').textContent  =
-    `Voulez-vous supprimer "${name}" ? Cette action est irréversible.`;
-  document.getElementById('modal-delete').classList.remove('hidden');
+function confirmDeleteCategory(id, name, ticketCount) {
+    if (ticketCount > 0) {
+        showToast(`Impossible de supprimer "${name}" : ${ticketCount} ticket(s) y sont rattachés.`, 'error');
+        return;
+    }
+
+    currentDeleteType = 'category';
+    currentDeleteId   = id;
+
+    document.getElementById('deleteModalTitle').textContent = 'Supprimer la catégorie';
+    document.getElementById('deleteModalText').textContent = 
+        `Êtes-vous sûr de vouloir supprimer la catégorie "${name}" ? Cette action est irréversible.`;
+    document.getElementById('deleteModal').classList.remove('hidden');
+    document.getElementById('confirmDeleteBtn').onclick = executeDelete;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// TICKETS — CRUD
+// TICKETS - CRUD (Intégration Session 1)
 // ═══════════════════════════════════════════════════════════════════════════════
 
 async function loadTickets() {
-  try {
-    const res  = await fetch(TICKETS_API);
-    const json = await res.json();
-    if (!json.success) throw new Error(json.message);
-    allTickets = json.data;
-    document.getElementById('ticket-count').textContent = `${allTickets.length} ticket(s)`;
-    renderTickets(allTickets);
-  } catch (err) {
-    document.getElementById('tickets-tbody').innerHTML =
-      `<tr><td colspan="7" class="px-5 py-10 text-center text-red-400">${escHtml(err.message)}</td></tr>`;
-  }
+    try {
+        const res = await fetch(TICKETS_API);
+        const json = await res.json();
+        if (!json.success) throw new Error(json.message);
+
+        allTickets = json.data;
+        updateTicketStats(allTickets);
+        renderTickets(allTickets);
+    } catch (err) {
+        document.getElementById('ticketsTableBody').innerHTML = `
+            <tr><td colspan="7" class="px-6 py-12 text-center text-rose-500 font-medium">
+                ⚠️ Erreur de chargement des tickets : ${escHtml(err.message)}
+            </td></tr>
+        `;
+    }
+}
+
+function updateTicketStats(list) {
+    const total = list.length;
+    const statuts = list.reduce((acc, t) => {
+        acc[t.statut] = (acc[t.statut] || 0) + 1;
+        return acc;
+    }, {});
+
+    document.getElementById('statTotalTickets').textContent = total;
+    document.getElementById('statOuverts').textContent = statuts['Ouvert'] || 0;
+    document.getElementById('statEnCours').textContent = statuts['En cours'] || 0;
+    document.getElementById('statResolus').textContent = (statuts['Résolu'] || 0) + (statuts['Fermé'] || 0);
+    document.getElementById('filteredTicketCount').textContent = total;
 }
 
 const STATUT_CLASSES = {
-  'Ouvert':   'bg-emerald-100 text-emerald-800',
-  'En cours': 'bg-blue-100 text-blue-800',
-  'Résolu':   'bg-violet-100 text-violet-800',
-  'Fermé':    'bg-slate-100 text-slate-600',
+    'Ouvert':   'bg-emerald-100 text-emerald-800',
+    'En cours': 'bg-blue-100 text-blue-800',
+    'Résolu':   'bg-violet-100 text-violet-800',
+    'Fermé':    'bg-slate-100 text-slate-600',
 };
 
 function renderTickets(list) {
-  const tbody = document.getElementById('tickets-tbody');
-  if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="7" class="px-5 py-10 text-center text-slate-400">Aucun ticket trouvé.</td></tr>`;
-    return;
-  }
-  tbody.innerHTML = list.map(t => {
-    const cls  = STATUT_CLASSES[t.statut] || 'bg-slate-100 text-slate-600';
-    const date = t.date_creation ? t.date_creation.substring(0, 10) : '—';
-    return `<tr class="hover:bg-slate-50 transition-colors">
-      <td class="px-4 py-3 text-slate-400 font-mono text-xs">#${t.id_ticket}</td>
-      <td class="px-4 py-3 font-medium text-slate-800 max-w-xs truncate">${escHtml(t.titre)}</td>
-      <td class="px-4 py-3">
-        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${cls}">${escHtml(t.statut)}</span>
-      </td>
-      <td class="px-4 py-3 text-sm text-slate-600">${escHtml(t.nom_categorie || '—')}</td>
-      <td class="px-4 py-3 text-sm text-slate-600">${escHtml(t.nom_complet_utilisateur || '—')}</td>
-      <td class="px-4 py-3 text-xs text-slate-400">${date}</td>
-      <td class="px-4 py-3 text-center">
-        <div class="flex items-center justify-center gap-2">
-          <button onclick="showEditTicketForm(${t.id_ticket})"
-                  title="Modifier"
-                  class="p-1.5 rounded-lg text-amber-500 hover:bg-amber-50 transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-            </svg>
-          </button>
-          <button onclick="confirmDeleteTicket(${t.id_ticket}, '${escAttr(t.titre)}')"
-                  title="Supprimer"
-                  class="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-            </svg>
-          </button>
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
+    const tbody = document.getElementById('ticketsTableBody');
+    if (!list.length) {
+        tbody.innerHTML = `
+            <tr id="emptyRowTickets">
+                <td colspan="7" class="px-6 py-12 text-center text-slate-400">
+                    <span class="text-3xl block mb-2">📭</span>
+                    Aucun ticket trouvé.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = list.map(t => {
+        const cls = STATUT_CLASSES[t.statut] || 'bg-slate-100 text-slate-600';
+        const dateStr = t.date_creation ? t.date_creation.substring(0, 10) : '—';
+
+        return `
+            <tr id="row-ticket-${t.id_ticket}" class="hover:bg-slate-50/80 transition duration-150">
+                <td class="px-5 py-4 whitespace-nowrap text-sm font-semibold text-slate-400">
+                    #${t.id_ticket}
+                </td>
+                <td class="px-5 py-4">
+                    <span class="text-sm font-semibold text-slate-900 block ticket-titre">
+                        ${escHtml(t.titre)}
+                    </span>
+                    <p class="text-xs text-slate-500 mt-0.5 max-w-sm truncate ticket-desc">
+                        ${escHtml(t.description)}
+                    </p>
+                </td>
+                <td class="px-5 py-4 whitespace-nowrap text-center">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ticket-statut ${cls}">
+                        ${escHtml(t.statut)}
+                    </span>
+                </td>
+                <td class="px-5 py-4 whitespace-nowrap text-sm text-slate-700 ticket-cat">
+                    <span class="inline-flex items-center">
+                        <span class="mr-1.5 text-xs">📂</span>
+                        ${escHtml(t.nom_categorie || '—')}
+                    </span>
+                </td>
+                <td class="px-5 py-4 whitespace-nowrap text-sm text-slate-700 ticket-user">
+                    ${escHtml(t.nom_complet_utilisateur || '—')}
+                </td>
+                <td class="px-5 py-4 whitespace-nowrap text-xs text-slate-500">
+                    ${dateStr}
+                </td>
+                <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                    <button onclick="showEditTicketForm(${t.id_ticket})" 
+                            class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold text-brand-600 bg-brand-50 hover:bg-brand-100 transition">
+                        Modifier
+                    </button>
+                    <button onclick="confirmDeleteTicket(${t.id_ticket}, '${escAttr(t.titre)}')" 
+                            class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 transition">
+                        Supprimer
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
 
 function filterTickets() {
-  const q = document.getElementById('search-tickets').value.trim().toLowerCase();
-  const filtered = q
-    ? allTickets.filter(t =>
-        t.titre.toLowerCase().includes(q) ||
-        (t.statut || '').toLowerCase().includes(q) ||
-        (t.nom_categorie || '').toLowerCase().includes(q) ||
-        (t.nom_complet_utilisateur || '').toLowerCase().includes(q)
-      )
-    : allTickets;
-  document.getElementById('ticket-count').textContent = `${filtered.length} ticket(s)`;
-  renderTickets(filtered);
+    const input = document.getElementById('searchTickets').value.trim().toLowerCase();
+    const filtered = input
+        ? allTickets.filter(t =>
+            t.titre.toLowerCase().includes(input) ||
+            t.description.toLowerCase().includes(input) ||
+            t.statut.toLowerCase().includes(input) ||
+            (t.nom_categorie || '').toLowerCase().includes(input) ||
+            (t.nom_complet_utilisateur || '').toLowerCase().includes(input)
+        )
+        : allTickets;
+
+    document.getElementById('filteredTicketCount').textContent = filtered.length;
+    renderTickets(filtered);
 }
 
-/** Charge catégories + utilisateurs dans les <select> du formulaire ticket */
-async function loadFormSelectData(catSelectId, userSelectId, selectedCat = null, selectedUser = null) {
-  try {
-    const [catRes, userRes] = await Promise.all([
-      fetch(CATEGORIES_API),
-      fetch(USERS_API),
-    ]);
-    const [catJson, userJson] = await Promise.all([catRes.json(), userRes.json()]);
+async function populateSelects(catSelectId, userSelectId, selectedCat = null, selectedUser = null) {
+    try {
+        const [catRes, userRes] = await Promise.all([
+            fetch(CATEGORIES_API),
+            fetch(USERS_API),
+        ]);
+        const [catJson, userJson] = await Promise.all([catRes.json(), userRes.json()]);
 
-    const catSelect  = document.getElementById(catSelectId);
-    const userSelect = document.getElementById(userSelectId);
+        const catSelect = document.getElementById(catSelectId);
+        const userSelect = document.getElementById(userSelectId);
 
-    catSelect.innerHTML  = '<option value="">— Choisir —</option>';
-    userSelect.innerHTML = '<option value="">— Choisir —</option>';
+        catSelect.innerHTML = '<option value="">— Choisir la catégorie —</option>';
+        userSelect.innerHTML = '<option value="">— Choisir l\'utilisateur —</option>';
 
-    if (catJson.success) {
-      catJson.data.forEach(c => {
-        const opt = new Option(c.nom_categorie, c.id_categorie, false, String(c.id_categorie) === String(selectedCat));
-        catSelect.add(opt);
-      });
+        if (catJson.success) {
+            catJson.data.forEach(c => {
+                const opt = new Option(c.nom_categorie, c.id_categorie, false, String(c.id_categorie) === String(selectedCat));
+                catSelect.add(opt);
+            });
+        }
+        if (userJson.success) {
+            userJson.data.forEach(u => {
+                const label = `${u.prenom} ${u.nom} (${u.role})`;
+                const opt = new Option(label, u.id_utilisateur, false, String(u.id_utilisateur) === String(selectedUser));
+                userSelect.add(opt);
+            });
+        }
+    } catch (err) {
+        console.error("Erreur chargement des selects :", err);
     }
-    if (userJson.success) {
-      userJson.data.forEach(u => {
-        const label = `${u.prenom} ${u.nom} (${u.role})`;
-        const opt   = new Option(label, u.id_utilisateur, false, String(u.id_utilisateur) === String(selectedUser));
-        userSelect.add(opt);
-      });
-    }
-  } catch (err) {
-    console.error('Erreur chargement selects :', err);
-  }
 }
 
 async function showAddTicketForm() {
-  showView('view-tickets-ajout');
-  hideFormAlert('add-ticket-alert');
-  document.getElementById('form-add-ticket').reset();
-  await loadFormSelectData('add-ticket-categorie', 'add-ticket-utilisateur');
-  document.getElementById('add-ticket-titre').focus();
+    document.getElementById('formAddTicket').reset();
+    hideAlert('addTicketAlert');
+    showView('view-tickets-ajout');
+    await populateSelects('addTicketCat', 'addTicketUser');
+    document.getElementById('addTicketTitre').focus();
 }
 
 async function showEditTicketForm(id) {
-  showView('view-tickets-modifier');
-  hideFormAlert('edit-ticket-alert');
-  try {
-    const res  = await fetch(`${TICKETS_API}?id=${id}`);
-    const json = await res.json();
-    if (!json.success) throw new Error(json.message);
-    const t = json.data;
+    hideAlert('editTicketAlert');
+    showView('view-tickets-modifier');
 
-    document.getElementById('edit-ticket-id').value    = t.id_ticket;
-    document.getElementById('edit-ticket-titre').value = t.titre;
-    document.getElementById('edit-ticket-desc').value  = t.description;
+    try {
+        const res = await fetch(`${TICKETS_API}?id=${id}`);
+        const json = await res.json();
+        if (!json.success) throw new Error(json.message);
 
-    await loadFormSelectData(
-      'edit-ticket-categorie',
-      'edit-ticket-utilisateur',
-      t.id_categorie,
-      t.id_utilisateur
-    );
+        const t = json.data;
+        document.getElementById('editTicketId').value = t.id_ticket;
+        document.getElementById('editTicketTitre').value = t.titre;
+        document.getElementById('editTicketDesc').value = t.description;
 
-    document.getElementById('edit-ticket-statut').value = t.statut;
-    document.getElementById('edit-ticket-titre').focus();
-  } catch (err) {
-    showFormAlert('edit-ticket-alert', 'edit-ticket-icon', 'edit-ticket-text', err.message, 'error');
-  }
+        await populateSelects('editTicketCat', 'editTicketUser', t.id_categorie, t.id_utilisateur);
+
+        document.getElementById('editTicketStatut').value = t.statut;
+        document.getElementById('editTicketTitre').focus();
+    } catch (err) {
+        showAlert('editTicketAlert', 'editTicketAlertIcon', 'editTicketAlertText', err.message, 'error');
+    }
 }
 
 async function submitAddTicket(e) {
-  e.preventDefault();
-  hideFormAlert('add-ticket-alert');
-  setLoading('btn-submit-add-ticket', 'spin-add-ticket', true);
-  try {
-    const body = {
-      titre:          document.getElementById('add-ticket-titre').value.trim(),
-      description:    document.getElementById('add-ticket-desc').value.trim(),
-      statut:         document.getElementById('add-ticket-statut').value,
-      id_categorie:   parseInt(document.getElementById('add-ticket-categorie').value, 10),
-      id_utilisateur: parseInt(document.getElementById('add-ticket-utilisateur').value, 10),
+    e.preventDefault();
+    hideAlert('addTicketAlert');
+    setLoading('btnSubmitAddTicket', 'spinAddTicket', true);
+
+    const payload = {
+        titre:          document.getElementById('addTicketTitre').value.trim(),
+        description:    document.getElementById('addTicketDesc').value.trim(),
+        id_categorie:   parseInt(document.getElementById('addTicketCat').value, 10),
+        statut:         document.getElementById('addTicketStatut').value,
+        id_utilisateur: parseInt(document.getElementById('addTicketUser').value, 10)
     };
-    const res  = await fetch(TICKETS_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    const json = await res.json();
-    if (!json.success) throw new Error(json.message);
-    showToast('Ticket créé avec succès !', 'success');
-    navigateTo('tickets');
-  } catch (err) {
-    showFormAlert('add-ticket-alert', 'add-ticket-icon', 'add-ticket-text', err.message, 'error');
-  } finally {
-    setLoading('btn-submit-add-ticket', 'spin-add-ticket', false);
-  }
+
+    try {
+        const res = await fetch(TICKETS_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+
+        if (res.ok && json.success) {
+            showToast("Ticket créé avec succès !", 'success');
+            navigateTo('tickets');
+        } else {
+            showAlert('addTicketAlert', 'addTicketAlertIcon', 'addTicketAlertText', json.message || "Erreur de création.", 'error');
+        }
+    } catch (err) {
+        showAlert('addTicketAlert', 'addTicketAlertIcon', 'addTicketAlertText', "Erreur réseau avec le serveur.", 'error');
+    } finally {
+        setLoading('btnSubmitAddTicket', 'spinAddTicket', false);
+    }
 }
 
 async function submitEditTicket(e) {
-  e.preventDefault();
-  hideFormAlert('edit-ticket-alert');
-  setLoading('btn-submit-edit-ticket', 'spin-edit-ticket', true);
-  const id = document.getElementById('edit-ticket-id').value;
-  try {
-    const body = {
-      titre:          document.getElementById('edit-ticket-titre').value.trim(),
-      description:    document.getElementById('edit-ticket-desc').value.trim(),
-      statut:         document.getElementById('edit-ticket-statut').value,
-      id_categorie:   parseInt(document.getElementById('edit-ticket-categorie').value, 10),
-      id_utilisateur: parseInt(document.getElementById('edit-ticket-utilisateur').value, 10),
+    e.preventDefault();
+    hideAlert('editTicketAlert');
+    setLoading('btnSubmitEditTicket', 'spinEditTicket', true);
+
+    const id = document.getElementById('editTicketId').value;
+    const payload = {
+        titre:          document.getElementById('editTicketTitre').value.trim(),
+        description:    document.getElementById('editTicketDesc').value.trim(),
+        id_categorie:   parseInt(document.getElementById('editTicketCat').value, 10),
+        statut:         document.getElementById('editTicketStatut').value,
+        id_utilisateur: parseInt(document.getElementById('editTicketUser').value, 10)
     };
-    const res  = await fetch(`${TICKETS_API}?id=${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    const json = await res.json();
-    if (!json.success) throw new Error(json.message);
-    showToast('Ticket mis à jour !', 'success');
-    navigateTo('tickets');
-  } catch (err) {
-    showFormAlert('edit-ticket-alert', 'edit-ticket-icon', 'edit-ticket-text', err.message, 'error');
-  } finally {
-    setLoading('btn-submit-edit-ticket', 'spin-edit-ticket', false);
-  }
+
+    try {
+        const res = await fetch(`${TICKETS_API}?id=${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+
+        if (res.ok && json.success) {
+            showToast("Ticket mis à jour !", 'success');
+            navigateTo('tickets');
+        } else {
+            showAlert('editTicketAlert', 'editTicketAlertIcon', 'editTicketAlertText', json.message || "Erreur de modification.", 'error');
+        }
+    } catch (err) {
+        showAlert('editTicketAlert', 'editTicketAlertIcon', 'editTicketAlertText', "Erreur réseau avec le serveur.", 'error');
+    } finally {
+        setLoading('btnSubmitEditTicket', 'spinEditTicket', false);
+    }
 }
 
 function confirmDeleteTicket(id, titre) {
-  currentDeleteType = 'ticket';
-  currentDeleteId   = id;
-  currentDeleteName = titre;
-  document.getElementById('modal-delete-title').textContent = 'Supprimer le ticket';
-  document.getElementById('modal-delete-body').textContent  =
-    `Voulez-vous supprimer le ticket "${titre}" ? Cette action est irréversible.`;
-  document.getElementById('modal-delete').classList.remove('hidden');
+    currentDeleteType = 'ticket';
+    currentDeleteId   = id;
+
+    document.getElementById('deleteModalTitle').textContent = 'Supprimer le ticket';
+    document.getElementById('deleteModalText').textContent = 
+        `Êtes-vous sûr de vouloir supprimer le ticket "${titre}" ? Cette action est irréversible.`;
+    document.getElementById('deleteModal').classList.remove('hidden');
+    document.getElementById('confirmDeleteBtn').onclick = executeDelete;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SUPPRESSION PARTAGÉE
+// SUPPRESSION PARTAGÉE (Modale)
 // ═══════════════════════════════════════════════════════════════════════════════
 
 async function executeDelete() {
-  setLoading('btn-confirm-delete', 'spin-delete', true);
-  try {
-    const url    = currentDeleteType === 'category'
-                   ? `${CATEGORIES_API}?id=${currentDeleteId}`
-                   : `${TICKETS_API}?id=${currentDeleteId}`;
-    const res    = await fetch(url, { method: 'DELETE' });
-    const json   = await res.json();
-    if (!json.success) throw new Error(json.message);
+    if (!currentDeleteId) return;
 
-    const label  = currentDeleteType === 'category' ? 'Catégorie' : 'Ticket';
-    showToast(`${label} supprimé(e) avec succès !`, 'success');
-    closeDeleteModal();
+    const btn = document.getElementById('confirmDeleteBtn');
+    const spinner = document.getElementById('deleteBtnSpinner');
+    btn.disabled = true;
+    spinner.classList.remove('hidden');
 
-    if (currentDeleteType === 'category') {
-      navigateTo('categories');
-    } else {
-      navigateTo('tickets');
+    const url = currentDeleteType === 'category'
+        ? `${CATEGORIES_API}?id=${currentDeleteId}`
+        : `${TICKETS_API}?id=${currentDeleteId}`;
+
+    try {
+        const res = await fetch(url, {
+            method: 'DELETE',
+            headers: { 'Accept': 'application/json' }
+        });
+        const json = await res.json();
+
+        if (json.success) {
+            const label = currentDeleteType === 'category' ? 'Catégorie' : 'Ticket';
+            showToast(`${label} supprimé(e) avec succès !`, 'success');
+            closeDeleteModal();
+
+            if (currentDeleteType === 'category') {
+                loadCategories();
+            } else {
+                loadTickets();
+            }
+        } else {
+            closeDeleteModal();
+            showToast(json.message || "Erreur de suppression.", 'error');
+        }
+    } catch (err) {
+        closeDeleteModal();
+        showToast("Erreur réseau.", 'error');
+    } finally {
+        btn.disabled = false;
+        spinner.classList.add('hidden');
     }
-  } catch (err) {
-    showToast(err.message, 'error');
-    closeDeleteModal();
-  } finally {
-    setLoading('btn-confirm-delete', 'spin-delete', false);
-  }
 }
 
 function closeDeleteModal() {
-  document.getElementById('modal-delete').classList.add('hidden');
-  currentDeleteType = null;
-  currentDeleteId   = null;
+    document.getElementById('deleteModal').classList.add('hidden');
+    currentDeleteType = null;
+    currentDeleteId   = null;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// UTILITAIRES
+// UTILITAIRES & ALERTES
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function showToast(msg, type = 'success') {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.className   = `fixed top-5 right-5 z-50 max-w-sm px-5 py-3 rounded-xl shadow-xl text-sm font-medium text-white transition-all duration-300 ${
-    type === 'success' ? 'bg-emerald-600' : 'bg-red-600'
-  }`;
-  toast.classList.remove('hidden');
-  setTimeout(() => toast.classList.add('hidden'), 3500);
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toastNotification');
+    const icon = document.getElementById('toastIcon');
+    const text = document.getElementById('toastMessage');
+
+    toast.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-rose-50', 'text-rose-800', 'border-rose-200');
+
+    if (type === 'success') {
+        toast.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
+        icon.textContent = '✅';
+    } else {
+        toast.classList.add('bg-rose-50', 'text-rose-800', 'border-rose-200');
+        icon.textContent = '⚠️';
+    }
+
+    text.textContent = message;
+    setTimeout(() => { hideToast(); }, 4000);
+}
+
+function hideToast() {
+    document.getElementById('toastNotification').classList.add('hidden');
+}
+
+function showAlert(boxId, iconId, textId, msg, type = 'error') {
+    const box = document.getElementById(boxId);
+    const icon = document.getElementById(iconId);
+    const text = document.getElementById(textId);
+    if (!box) return;
+
+    box.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-rose-50', 'text-rose-800', 'border-rose-200');
+    box.classList.add('border');
+
+    if (type === 'success') {
+        box.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
+        if (icon) icon.textContent = '✅';
+    } else {
+        box.classList.add('bg-rose-50', 'text-rose-800', 'border-rose-200');
+        if (icon) icon.textContent = '⚠️';
+    }
+    if (text) text.textContent = msg;
+}
+
+function hideAlert(boxId) {
+    const box = document.getElementById(boxId);
+    if (box) box.classList.add('hidden');
 }
 
 function setLoading(btnId, spinnerId, loading) {
-  const btn  = document.getElementById(btnId);
-  const spin = document.getElementById(spinnerId);
-  if (!btn || !spin) return;
-  btn.disabled = loading;
-  loading ? spin.classList.remove('hidden') : spin.classList.add('hidden');
-}
-
-function showFormAlert(boxId, iconId, textId, msg, type) {
-  const box  = document.getElementById(boxId);
-  const icon = document.getElementById(iconId);
-  const text = document.getElementById(textId);
-  if (!box) return;
-  box.classList.remove('hidden', 'bg-red-50', 'text-red-700', 'bg-green-50', 'text-green-700');
-  if (type === 'error') {
-    box.classList.add('bg-red-50', 'text-red-700');
-    if (icon) icon.textContent = '⚠️';
-  } else {
-    box.classList.add('bg-green-50', 'text-green-700');
-    if (icon) icon.textContent = '✅';
-  }
-  if (text) text.textContent = msg;
-}
-
-function hideFormAlert(boxId) {
-  const box = document.getElementById(boxId);
-  if (box) box.classList.add('hidden');
+    const btn = document.getElementById(btnId);
+    const spin = document.getElementById(spinnerId);
+    if (btn) btn.disabled = loading;
+    if (spin) loading ? spin.classList.remove('hidden') : spin.classList.add('hidden');
 }
 
 function escHtml(s) {
-  if (!s) return '';
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+    if (!s) return '';
+    return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 function escAttr(s) {
-  if (!s) return '';
-  return String(s).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    if (!s) return '';
+    return String(s).replace(/'/g, "\\'").replace(/"/g, '&quot;');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// INIT
+// INITIALISATION
 // ═══════════════════════════════════════════════════════════════════════════════
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Fermer la modale si clic en dehors
-  document.getElementById('modal-delete').addEventListener('click', function (e) {
-    if (e.target === this) closeDeleteModal();
-  });
-  navigateTo('categories');
-});
+function init() {
+    const modal = document.getElementById('deleteModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) closeDeleteModal();
+        });
+    }
+    navigateTo('categories');
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+

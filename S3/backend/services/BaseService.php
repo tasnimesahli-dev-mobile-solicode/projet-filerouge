@@ -1,7 +1,5 @@
 <?php
-// S3/backend/services/BaseService.php
-// Tier 2 — Classe abstraite parente de tous les Services
-// Fournit l'accès PDO partagé via injection de dépendance
+// S3/backend/services/BaseService.php - Tier 2 : Service de base abstrait
 
 abstract class BaseService
 {

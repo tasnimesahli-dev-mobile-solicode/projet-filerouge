@@ -1,6 +1,5 @@
 <?php
-// S3/backend/api/utilisateurs.php
-// Tier 1 — Lecture seule des utilisateurs (pour les selects du formulaire ticket)
+// S3/backend/api/utilisateurs.php - Tier 1 : Lecture seule des utilisateurs
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, OPTIONS');

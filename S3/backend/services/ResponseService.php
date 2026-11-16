@@ -1,18 +1,15 @@
 <?php
-// S3/backend/services/ResponseService.php
-// Tier 2 — Formatage unifié de toutes les réponses JSON HTTP
+// S3/backend/services/ResponseService.php - Tier 2 : Réponses JSON formatées
 
 require_once __DIR__ . '/BaseService.php';
 
 class ResponseService extends BaseService
 {
-    /** Réponse JSON de succès */
     public function success(array $data, int $status = 200): void
     {
         $this->jsonResponse(array_merge(['success' => true], $data), $status);
     }
 
-    /** Réponse JSON d'erreur */
     public function error(string $message, int $status = 500, array $extra = []): void
     {
         $this->jsonResponse(
@@ -21,7 +18,6 @@ class ResponseService extends BaseService
         );
     }
 
-    /** Envoi brut JSON avec code HTTP */
     public function jsonResponse(array $payload, int $statusCode = 200): void
     {
         http_response_code($statusCode);

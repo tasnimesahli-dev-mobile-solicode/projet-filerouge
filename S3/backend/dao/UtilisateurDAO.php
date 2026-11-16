@@ -1,6 +1,5 @@
 <?php
-// S3/backend/dao/UtilisateurDAO.php
-// Tier 3 — Data Access : lecture seule de la table `utilisateur`
+// S3/backend/dao/UtilisateurDAO.php - Tier 3 : Data Access Object pour `utilisateur`
 
 class UtilisateurDAO
 {
@@ -11,9 +10,7 @@ class UtilisateurDAO
         $this->pdo = $pdo;
     }
 
-    /**
-     * Tous les utilisateurs (sans mot_de_passe).
-     */
+    /** Tous les utilisateurs */
     public function findAll(): array
     {
         $stmt = $this->pdo->query(
@@ -24,14 +21,10 @@ class UtilisateurDAO
         return $stmt->fetchAll();
     }
 
-    /**
-     * Vérifie l'existence d'un utilisateur par ID.
-     */
+    /** Vérifie l'existence d'un utilisateur par ID */
     public function existsById(int $id): bool
     {
-        $stmt = $this->pdo->prepare(
-            "SELECT id_utilisateur FROM utilisateur WHERE id_utilisateur = ?"
-        );
+        $stmt = $this->pdo->prepare("SELECT id_utilisateur FROM utilisateur WHERE id_utilisateur = ?");
         $stmt->execute([$id]);
         return $stmt->fetch() !== false;
     }

@@ -1,5 +1,5 @@
 <?php
-// S3/backend/classes/Ticket.php — Entité Ticket
+// S3/backend/classes/Ticket.php - Entité Ticket
 
 class Ticket implements JsonSerializable
 {
@@ -31,20 +31,20 @@ class Ticket implements JsonSerializable
         $this->date_creation  = $date_creation;
     }
 
-    public function getIdTicket(): ?int      { return $this->id_ticket; }
-    public function getTitre(): string        { return $this->titre; }
-    public function getDescription(): string  { return $this->description; }
-    public function getStatut(): string       { return $this->statut; }
-    public function getIdUtilisateur(): int   { return $this->id_utilisateur; }
-    public function getIdCategorie(): int     { return $this->id_categorie; }
-    public function getDateCreation(): ?string { return $this->date_creation; }
+    public function getIdTicket(): ?int        { return $this->id_ticket; }
+    public function getTitre(): string          { return $this->titre; }
+    public function getDescription(): string    { return $this->description; }
+    public function getStatut(): string         { return $this->statut; }
+    public function getIdUtilisateur(): int     { return $this->id_utilisateur; }
+    public function getIdCategorie(): int       { return $this->id_categorie; }
+    public function getDateCreation(): ?string   { return $this->date_creation; }
 
-    public function setIdTicket(?int $id): self       { $this->id_ticket = $id; return $this; }
-    public function setTitre(string $v): self         { $this->titre = trim($v); return $this; }
-    public function setDescription(string $v): self   { $this->description = trim($v); return $this; }
-    public function setStatut(string $v): self        { $this->statut = $v; return $this; }
-    public function setIdUtilisateur(int $v): self    { $this->id_utilisateur = $v; return $this; }
-    public function setIdCategorie(int $v): self      { $this->id_categorie = $v; return $this; }
+    public function setIdTicket(?int $id): self        { $this->id_ticket = $id; return $this; }
+    public function setTitre(string $v): self          { $this->titre = trim($v); return $this; }
+    public function setDescription(string $v): self    { $this->description = trim($v); return $this; }
+    public function setStatut(string $v): self         { $this->statut = $v; return $this; }
+    public function setIdUtilisateur(int $v): self     { $this->id_utilisateur = $v; return $this; }
+    public function setIdCategorie(int $v): self       { $this->id_categorie = $v; return $this; }
 
     public function toArray(): array
     {
@@ -59,6 +59,9 @@ class Ticket implements JsonSerializable
         ];
     }
 
-    public function jsonSerialize(): array { return $this->toArray(); }
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
+    }
 }
 

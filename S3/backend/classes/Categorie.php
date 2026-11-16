@@ -1,5 +1,5 @@
 <?php
-// S3/backend/classes/Categorie.php — Entité Catégorie (avec description)
+// S3/backend/classes/Categorie.php - Entité Catégorie avec description
 
 class Categorie implements JsonSerializable
 {
@@ -48,5 +48,9 @@ class Categorie implements JsonSerializable
         ];
     }
 
-    public function jsonSerialize(): array { return $this->toArray(); }
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
+    }
 }
+

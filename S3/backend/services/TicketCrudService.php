@@ -1,6 +1,5 @@
 <?php
-// S3/backend/services/TicketCrudService.php
-// Tier 2 — CRUD complet des tickets
+// S3/backend/services/TicketCrudService.php - Tier 2 : Logique Métier CRUD Tickets
 // Exception inline : TicketNotFoundException
 
 require_once __DIR__ . '/BaseService.php';
@@ -11,7 +10,7 @@ require_once __DIR__ . '/../dao/CategorieDAO.php';
 require_once __DIR__ . '/../dao/UtilisateurDAO.php';
 require_once __DIR__ . '/../classes/Ticket.php';
 
-// ── Exception ─────────────────────────────────────────────────────────────────
+// ── Exception Métier ──────────────────────────────────────────────────────────
 
 class TicketNotFoundException extends RuntimeException
 {
@@ -47,7 +46,6 @@ class TicketCrudService extends BaseService
         $this->responseService   = $responseService;
     }
 
-    // ── GET — Liste ───────────────────────────────────────────────────────────
     public function index(): void
     {
         try {
@@ -63,7 +61,6 @@ class TicketCrudService extends BaseService
         }
     }
 
-    // ── GET ?id — Détail ──────────────────────────────────────────────────────
     public function show(int $id): void
     {
         if ($id <= 0) {
@@ -83,7 +80,6 @@ class TicketCrudService extends BaseService
         }
     }
 
-    // ── POST — Création ───────────────────────────────────────────────────────
     public function store(array $data): void
     {
         try {
@@ -124,7 +120,6 @@ class TicketCrudService extends BaseService
         }
     }
 
-    // ── PUT — Modification ────────────────────────────────────────────────────
     public function update(int $id, array $data): void
     {
         if ($id <= 0) {
@@ -172,7 +167,6 @@ class TicketCrudService extends BaseService
         }
     }
 
-    // ── DELETE — Suppression ──────────────────────────────────────────────────
     public function destroy(int $id): void
     {
         if ($id <= 0) {

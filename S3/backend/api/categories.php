@@ -1,14 +1,11 @@
 <?php
-// S3/backend/api/categories.php
-// Tier 1 — Point d'entrée HTTP + CategorieController (fusionnés)
+// S3/backend/api/categories.php - Tier 1 : Point d'entrée HTTP + CategorieController
 
-// ── CORS ──────────────────────────────────────────────────────────────────────
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit; }
 
-// ── Dépendances ───────────────────────────────────────────────────────────────
 require_once __DIR__ . '/../classes/Database.php';
 require_once __DIR__ . '/../classes/Categorie.php';
 require_once __DIR__ . '/../dao/CategorieDAO.php';
@@ -19,7 +16,7 @@ require_once __DIR__ . '/../services/AutoIncrementService.php';
 require_once __DIR__ . '/../services/TicketService.php';
 require_once __DIR__ . '/../services/CategorieService.php';
 
-// ── CategorieController (intégré) ────────────────────────────────────────────
+// ── CategorieController ───────────────────────────────────────────────────────
 
 class CategorieController
 {
@@ -30,11 +27,11 @@ class CategorieController
         $this->service = $service;
     }
 
-    public function index(): void              { $this->service->index(); }
-    public function show(int $id): void        { $this->service->show($id); }
-    public function store(array $data): void   { $this->service->store($data); }
+    public function index(): void                      { $this->service->index(); }
+    public function show(int $id): void                { $this->service->show($id); }
+    public function store(array $data): void           { $this->service->store($data); }
     public function update(int $id, array $data): void { $this->service->update($id, $data); }
-    public function destroy(int $id): void     { $this->service->destroy($id); }
+    public function destroy(int $id): void             { $this->service->destroy($id); }
 }
 
 // ── Injection des dépendances ─────────────────────────────────────────────────
@@ -55,7 +52,7 @@ if ($method === 'POST' && isset($_POST['_method'])) {
     $method = strtoupper($_POST['_method']);
 }
 
-// ── Corps de la requête (JSON ou Form-Data) ───────────────────────────────────
+// ── Corps de la requête ───────────────────────────────────────────────────────
 $rawBody = file_get_contents('php://input');
 $body    = [];
 if (!empty($rawBody)) {
@@ -66,7 +63,6 @@ if (!empty($rawBody)) {
 }
 if (empty($body) && !empty($_POST)) { $body = $_POST; }
 
-// ── ID ────────────────────────────────────────────────────────────────────────
 $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 
 // ── Routeur RESTful ───────────────────────────────────────────────────────────

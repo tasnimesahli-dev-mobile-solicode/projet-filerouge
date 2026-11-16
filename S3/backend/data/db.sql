@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS utilisateur (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
--- Table `categorie`
+-- Table `categorie` (avec description)
 -- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS categorie (
     id_categorie  INT AUTO_INCREMENT PRIMARY KEY,

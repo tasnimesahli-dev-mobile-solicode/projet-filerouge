@@ -1,6 +1,5 @@
 <?php
-// S3/backend/services/CategorieService.php
-// Tier 2 — Orchestrateur principal CRUD catégories
+// S3/backend/services/CategorieService.php - Tier 2 : Orchestrateur métier CRUD Catégories
 // Exception inline : CategorieNotFoundException
 
 require_once __DIR__ . '/BaseService.php';
@@ -11,7 +10,7 @@ require_once __DIR__ . '/TicketService.php';
 require_once __DIR__ . '/../dao/CategorieDAO.php';
 require_once __DIR__ . '/../classes/Categorie.php';
 
-// ── Exception ─────────────────────────────────────────────────────────────────
+// ── Exception Métier ──────────────────────────────────────────────────────────
 
 class CategorieNotFoundException extends RuntimeException
 {
@@ -47,7 +46,6 @@ class CategorieService extends BaseService
         $this->ticketService        = $ticketService;
     }
 
-    // ── GET — Liste ───────────────────────────────────────────────────────────
     public function index(): void
     {
         try {
@@ -63,7 +61,6 @@ class CategorieService extends BaseService
         }
     }
 
-    // ── GET ?id — Détail ──────────────────────────────────────────────────────
     public function show(int $id): void
     {
         if ($id <= 0) {
@@ -86,7 +83,6 @@ class CategorieService extends BaseService
         }
     }
 
-    // ── POST — Création ───────────────────────────────────────────────────────
     public function store(array $data): void
     {
         $nom  = trim($data['nom_categorie'] ?? '');
@@ -118,7 +114,6 @@ class CategorieService extends BaseService
         }
     }
 
-    // ── PUT — Modification ────────────────────────────────────────────────────
     public function update(int $id, array $data): void
     {
         if ($id <= 0) {
@@ -159,7 +154,6 @@ class CategorieService extends BaseService
         }
     }
 
-    // ── DELETE — Suppression ──────────────────────────────────────────────────
     public function destroy(int $id): void
     {
         if ($id <= 0) {
@@ -191,3 +185,4 @@ class CategorieService extends BaseService
         }
     }
 }
+
