@@ -131,7 +131,7 @@ Développement d'une application Helpdesk pour faciliter la déclaration et le s
 
 ## Scrum
 
-![Méthode Scrum](scrum.png)
+![Méthode Scrum](../rapport/SCRUM/scrum.png)
 
 ---
 
@@ -139,7 +139,7 @@ Développement d'une application Helpdesk pour faciliter la déclaration et le s
 
 ## Processus 2TUP
 
-![Processus 2TUP](images.jpg)
+![Processus 2TUP](../rapport/2TUP/images.jpg)
 
 ---
 
@@ -147,7 +147,7 @@ Développement d'une application Helpdesk pour faciliter la déclaration et le s
 
 ## Design Thinking
 
-![Design Thinking](design_thinking.jpg)
+![Design Thinking](../rapport/design_thinking/design_thinking.jpg)
 
 ---
 
