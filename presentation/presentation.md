@@ -107,25 +107,11 @@ Présentation générale du projet File Rouge et de son objectif.
 Développement d'une application Helpdesk pour faciliter la déclaration et le suivi des problèmes en ligne.
 
 ---
-
-## Objectif de formation (Solicode)
-
-- Appliquer les compétences techniques acquises.
-- Développer une application web.
-- Organiser le travail en équipe.
-- Découvrir une architecture logicielle.
+## Planification
 
 ---
 
-## Cahier des charges
 
-- Déclaration des problèmes en ligne.
-- Création et gestion des tickets.
-- Gestion des catégories.
-- Suivi de l'état des tickets.
-- Gestion des utilisateurs.
-
----
 
 <!-- _class: image-only -->
 
@@ -151,9 +137,7 @@ Développement d'une application Helpdesk pour faciliter la déclaration et le s
 
 ---
 
-## Planification
 
----
 
 ## Branche fonctionnelle
 
