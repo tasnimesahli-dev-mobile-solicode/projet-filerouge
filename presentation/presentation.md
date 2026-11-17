@@ -1,99 +1,286 @@
 ---
 marp: true
 theme: default
-paginate: true
 size: 16:9
+paginate: true
+style: |
+  section {
+    font-family: "Aptos", "Segoe UI", sans-serif;
+    background: #f8fafc;
+    color: #172033;
+    padding: 35px 55px;
+    box-sizing: border-box;
+    font-size: 22px;
+    line-height: 1.3;
+    overflow: hidden;
+  }
+
+  h1, h2 {
+    color: #243b6b;
+  }
+
+  h1 {
+    font-size: 2.1em;
+    margin-bottom: 0.4em;
+  }
+
+  h2 {
+    font-size: 1.5em;
+    margin-top: 0;
+    margin-bottom: 0.5em;
+  }
+
+  h3 {
+    font-size: 1.1em;
+    margin: 0.3em 0;
+  }
+
+  p, li {
+    font-size: 0.9em;
+    line-height: 1.35;
+  }
+
+  ul, ol {
+    margin-top: 0.3em;
+    padding-left: 1.2em;
+  }
+
+  li {
+    margin-bottom: 0.2em;
+  }
+
+  table {
+    width: 100%;
+    font-size: 0.8em;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    padding: 7px 10px;
+    overflow-wrap: break-word;
+  }
+
+  section.image-only {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  section.image-only img {
+    max-width: 95%;
+    max-height: 75%;
+    object-fit: contain;
+  }
 ---
 
 <!-- _class: lead -->
 <!-- _paginate: false -->
 
+# Rapport de projet
+
 # FILE ROUGE
+
 ## Système Helpdesk — Gestion des tickets
 
-**Projet de fin d'études**
+**Réalisé par :** Tasnime Sahli
 
-Tasnime Sahli  
-Encadrant : ES-SARRAJ FOUAD  
+**Encadrant :** ES-SARRAJ Fouad
+
 Centre SoliCode Tanger • OFPPT • 2026
 
 ---
 
-# 1. Présentation du projet
-
-**File Rouge** est une application Helpdesk qui permet de :
-
-- Créer des tickets.
-- Organiser les demandes.
-- Suivre leur traitement.
+## Remerciements
 
 ---
 
-# 2. Problématique et solution
+## Introduction
 
-**Problématique :**
-
-Le client rencontre un problème et ne dispose pas toujours d'un moyen simple pour le signaler en ligne et suivre sa résolution.
-
-**Solution :**
-
-le projet permet au client de :
-
-- Signaler un problème en ligne.
-- Créer un ticket.
-- Suivre l'état de sa demande.
+Présentation générale du projet File Rouge et de son objectif.
 
 ---
 
-# 3. Objectifs
+## Contexte du projet
 
-- Centraliser les demandes.
-- Organiser les tickets par catégorie.
-- Faciliter le suivi.
-- Séparer les responsabilités dans le code.
+Développement d'une application Helpdesk pour faciliter la déclaration et le suivi des problèmes en ligne.
 
 ---
 
-# 4. Acteurs
+## Objectif de formation (Solicode)
 
-| Acteur | Rôle |
-|---|---|
-| **Client** | Crée et suit ses tickets |
-| **Support** | Traite les tickets |
-| **Admin** | Gère le système |
+- Appliquer les compétences techniques acquises.
+- Développer une application web.
+- Organiser le travail en équipe.
+- Découvrir une architecture logicielle.
 
 ---
 
-# 5. Fonctionnalités principales
+## Cahier des charges
 
-- Gestion des tickets.
+- Déclaration des problèmes en ligne.
+- Création et gestion des tickets.
 - Gestion des catégories.
 - Suivi de l'état des tickets.
-- Échanges entre les utilisateurs et le support.
+- Gestion des utilisateurs.
 
 ---
 
-# 6. Stack technique
+<!-- _class: image-only -->
 
-| Partie | Technologies |
-|---|---|
-| Frontend | HTML, CSS, Tailwind CSS |
-| Interactivité | JavaScript, Alpine.js |
-| Backend actuel | PHP Native |
-| Base de données | MySQL, PDO |
-| Backend prévu | Laravel |
+## Scrum
+
+![Méthode Scrum](scrum.png)
 
 ---
 
-# 7. Architecture — 3 tiers
+<!-- _class: image-only -->
 
-```text
-Frontend
-   ↓
+## Processus 2TUP
+
+![Processus 2TUP](images.jpg)
+
+---
+
+<!-- _class: image-only -->
+
+## Design Thinking
+
+![Design Thinking](design_thinking.jpg)
+
+---
+
+## Planification
+
+---
+
+## Branche fonctionnelle
+
+- **Client :** déclarer un problème et suivre son ticket.
+- **Support :** consulter et traiter les tickets.
+- **Admin :** gérer les utilisateurs et les catégories.
+
+---
+
+## Carte d'empathie
+
+**Utilisateur : Client**
+
+- **Besoin :** signaler un problème facilement.
+- **Difficulté :** suivre sa demande.
+- **Attente :** recevoir une réponse et connaître l'état du ticket.
+
+---
+
+## Définition du problème
+
+Le client rencontre un problème et ne dispose pas toujours d'une plateforme simple pour le signaler en ligne et suivre son traitement.
+
+---
+
+## Idéation
+
+Créer une plateforme Helpdesk qui permet de :
+
+- Déclarer un problème en ligne.
+- Créer un ticket.
+- Suivre son état.
+- Communiquer avec le support.
+
+---
+
+## Diagramme de cas d'utilisation
+
+---
+
+## Stack technologique
+
+- **Backend actuel :** PHP Native
+- **Backend prévu :** Laravel
+- **Frontend :** HTML · CSS · Tailwind CSS
+- **Interactivité :** JavaScript · Alpine.js
+- **Base de données :** MySQL · PDO
+- **Diagrammes :** MCD · Diagramme de classes
+
+---
+
+## Architecture
+
+**Présentation → Logique métier → Accès aux données**
+
+Navigateur · HTML / CSS / JavaScript
+
+↓
+
 Controllers
-   ↓
+
+↓
+
 Services
-   ↓
-DAO + PDO
-   ↓
+
+↓
+
+DAO · PDO
+
+↓
+
 MySQL
+
+---
+
+## Prototype Helpdesk
+
+- Tickets · Catégories · Utilisateurs
+- Création · Consultation · Modification · Suppression
+- Statuts · Suivi des tickets
+- Échanges entre client et support
+
+---
+
+## Relations des données
+
+- Utilisateur
+- Ticket
+- Catégorie
+- Commentaire
+
+*Les associations et cardinalités suivent le MCD validé du projet.*
+
+---
+
+## Structure technique
+
+- **Frontend :** HTML · CSS / Tailwind · JavaScript · Alpine.js
+- **Backend :** PHP Native · Controllers · Services · DAO
+- **Accès aux données :** PDO
+- **Données :** MySQL
+- **Organisation :** Frontend et Backend séparés
+
+---
+
+## Diagramme de classes
+
+---
+
+## Maquettes
+
+---
+
+## Interfaces
+
+---
+
+## Conclusion
+
+- Application Helpdesk pour la gestion des tickets.
+- Déclaration des problèmes en ligne.
+- Suivi des demandes.
+- Base pour une évolution vers Laravel.
+
+---
+
+<!-- _class: lead -->
+<!-- _paginate: false -->
+
+# Merci pour votre attention !
