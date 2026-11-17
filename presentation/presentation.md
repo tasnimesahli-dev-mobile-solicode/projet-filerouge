@@ -173,11 +173,17 @@ style: |
 
   section.lead .logo-row img {
     width: auto;
-    height: 62px;
-    max-width: 180px;
-    max-height: 62px;
+    height: 80px;
+    max-width: 190px;
+    max-height: 80px;
     margin: 0;
     object-fit: contain;
+  }
+
+  section.lead .logo-row img:last-child {
+    width: 310px;
+    max-width: 310px;
+    object-fit: cover;
   }
 
   section.divider {
@@ -207,6 +213,15 @@ style: |
     margin: 0;
     color: var(--white);
     font-size: 2.6em;
+  }
+
+  section.lead.closing h1:first-of-type {
+    margin: 0;
+    color: var(--white);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 2.6em;
+    font-weight: 700;
+    text-transform: none;
   }
 
   section.agenda ol {
@@ -299,8 +314,13 @@ style: |
     }
 
     section.lead .logo-row img {
-      height: 52px;
-      max-height: 52px;
+      height: 64px;
+      max-height: 64px;
+    }
+
+    section.lead .logo-row img:last-child {
+      width: 240px;
+      max-width: 240px;
     }
 
     section.image-only {
