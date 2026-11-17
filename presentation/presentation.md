@@ -4,60 +4,237 @@ theme: default
 size: 16:9
 paginate: true
 style: |
-  section {
-    font-family: "Aptos", "Segoe UI", sans-serif;
-    background: #f8fafc;
-    color: #172033;
-    padding: 35px 55px;
-    box-sizing: border-box;
-    font-size: 22px;
-    line-height: 1.3;
-    overflow: hidden;
+  :root {
+    --ink: #19333a;
+    --teal: #16766f;
+    --coral: #df7655;
+    --paper: #f5f7f3;
+    --white: #ffffff;
+    --muted: #5d7073;
+    --line: #d7e0da;
   }
 
-  h1, h2 {
-    color: #243b6b;
+  section {
+    font-family: "Aptos", "Segoe UI", sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 38px 58px 44px;
+    box-sizing: border-box;
+    font-size: 22px;
+    line-height: 1.32;
+    overflow: hidden;
+    position: relative;
+  }
+
+  section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: var(--teal);
+  }
+
+  h1, h2, h3 {
+    color: var(--ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 700;
   }
 
   h1 {
-    font-size: 2.1em;
-    margin-bottom: 0.4em;
+    font-size: 2.15em;
+    line-height: 1.08;
+    margin: 0 0 0.35em;
   }
 
   h2 {
-    font-size: 1.5em;
-    margin-top: 0;
-    margin-bottom: 0.5em;
+    font-size: 1.48em;
+    line-height: 1.12;
+    margin: 0 0 0.65em;
+    padding-bottom: 0.28em;
+    border-bottom: 2px solid var(--line);
   }
 
   h3 {
-    font-size: 1.1em;
-    margin: 0.3em 0;
+    font-size: 1.05em;
+    margin: 0.35em 0;
   }
 
-  p, li {
-    font-size: 0.9em;
-    line-height: 1.35;
+  p {
+    margin: 0.45em 0;
   }
 
   ul, ol {
-    margin-top: 0.3em;
-    padding-left: 1.2em;
+    margin: 0.35em 0;
+    padding-left: 1.25em;
   }
 
   li {
-    margin-bottom: 0.2em;
+    margin-bottom: 0.3em;
+    line-height: 1.35;
+  }
+
+  li::marker {
+    color: var(--coral);
+  }
+
+  strong {
+    color: var(--teal);
   }
 
   table {
     width: 100%;
-    font-size: 0.8em;
+    font-size: 0.82em;
     border-collapse: collapse;
   }
 
   th, td {
-    padding: 7px 10px;
+    padding: 8px 10px;
     overflow-wrap: break-word;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+  }
+
+  section img {
+    display: block;
+    max-width: 100%;
+    max-height: 430px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  section.lead {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 34px 72px;
+    background: var(--ink);
+    color: var(--white);
+    font-size: 20px;
+    line-height: 1.22;
+  }
+
+  section.lead::before {
+    height: 9px;
+    background: var(--coral);
+  }
+
+  section.lead h1:first-of-type {
+    margin: 0 0 0.12em;
+    color: #a9d8cb;
+    font-family: "Aptos", "Segoe UI", sans-serif;
+    font-size: 1em;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  section.lead h1:nth-of-type(2) {
+    margin: 0 0 0.18em;
+    color: var(--white);
+    font-size: 2.6em;
+    line-height: 1;
+  }
+
+  section.lead h2 {
+    margin: 0 0 0.6em;
+    padding: 0;
+    border: 0;
+    color: var(--white);
+    font-family: "Aptos", "Segoe UI", sans-serif;
+    font-size: 1.2em;
+    font-weight: 500;
+  }
+
+  section.lead p {
+    margin: 0.24em 0;
+    color: #d5e2de;
+  }
+
+  section.lead strong {
+    color: #a9d8cb;
+  }
+
+  .logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    width: 100%;
+    margin: 0 0 34px;
+    padding: 12px 18px;
+    box-sizing: border-box;
+    background: var(--white);
+    border-radius: 4px;
+  }
+
+  section.lead .logo-row img {
+    width: auto;
+    height: 62px;
+    max-width: 180px;
+    max-height: 62px;
+    margin: 0;
+    object-fit: contain;
+  }
+
+  section.divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ink);
+    color: var(--white);
+  }
+
+  section.divider::before {
+    background: var(--coral);
+  }
+
+  section.divider h1, section.divider h2 {
+    color: var(--white);
+    border: 0;
+    text-align: center;
+  }
+
+  section.closing {
+    align-items: center;
+    text-align: center;
+  }
+
+  section.closing h1 {
+    margin: 0;
+    color: var(--white);
+    font-size: 2.6em;
+  }
+
+  section.agenda ol {
+    padding-left: 1.5em;
+  }
+
+  section.agenda li {
+    margin-bottom: 0.45em;
+  }
+
+  section.sprints strong {
+    display: inline-block;
+    margin-top: 0.22em;
+    font-size: 1.03em;
+  }
+
+  section.architecture p {
+    margin: 0.25em 0;
+    text-align: center;
+  }
+
+  section.architecture p:first-of-type {
+    margin-bottom: 0.5em;
+    font-size: 1.08em;
+  }
+
+  section.lead img {
+    margin: 0;
   }
 
   section.image-only {
@@ -65,18 +242,84 @@ style: |
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 24px 42px 32px;
+    background: var(--white);
+  }
+
+  section.image-only h2 {
+    align-self: stretch;
+    width: 100%;
+    margin-bottom: 0.45em;
+  }
+
+  section.image-only p {
+    margin: 0;
   }
 
   section.image-only img {
-    max-width: 95%;
-    max-height: 75%;
+    max-width: 100%;
+    max-height: 520px;
+    width: auto;
+    height: auto;
     object-fit: contain;
+  }
+
+  section.image-only.landscape-image img {
+    max-width: 1040px;
+    max-height: 480px;
+  }
+
+  section.image-only.portrait-image img {
+    max-width: 540px;
+    max-height: 520px;
+  }
+
+  section::after {
+    color: var(--muted);
+    font-family: "Aptos", "Segoe UI", sans-serif;
+    font-size: 13px;
+  }
+
+  section.lead::after, section.divider::after {
+    color: rgba(255, 255, 255, 0.68);
+  }
+
+  @media (max-width: 800px) {
+    section {
+      padding: 28px 36px 34px;
+      font-size: 19px;
+    }
+
+    section.lead {
+      padding: 28px 42px;
+    }
+
+    .logo-row {
+      margin-bottom: 24px;
+    }
+
+    section.lead .logo-row img {
+      height: 52px;
+      max-height: 52px;
+    }
+
+    section.image-only {
+      padding: 20px 28px 26px;
+    }
+
+    section.image-only img {
+      max-height: 500px;
+    }
   }
 ---
 
 <!-- _class: lead -->
 <!-- _paginate: false -->
+
+<div class="logo-row">
+  <img src="ofppt-logo.png" alt="Logo OFPPT">
+  <img src="solicode-logo.png" alt="Logo SoliCode">
+</div>
 
 # Rapport de projet
 
@@ -92,7 +335,22 @@ Centre SoliCode Tanger • OFPPT • 2026
 
 ---
 
+<!-- _class: divider -->
+
 ## Remerciements
+
+---
+<!-- _class: agenda -->
+## Planification:
+
+1. Plan de la présentation
+2. Introduction et contexte du projet
+3. Méthodologies et planification
+4. Branche fonctionnelle
+5. Compréhension du besoin : empathie, problématique et idéation
+6. Conception : diagrammes de cas d'utilisation et de classes
+7. Stack technologique et structure technique
+8. Conclusion
 
 ---
 
@@ -107,13 +365,14 @@ Présentation générale du projet File Rouge et de son objectif.
 Développement d'une application Helpdesk pour faciliter la déclaration et le suivi des problèmes en ligne.
 
 ---
-## Planification
+
+<!-- _class: divider -->
+
+# Les Methode de Travail:
 
 ---
 
-
-
-<!-- _class: image-only -->
+<!-- _class: image-only landscape-image -->
 
 ## Scrum
 
@@ -121,7 +380,7 @@ Développement d'une application Helpdesk pour faciliter la déclaration et le s
 
 ---
 
-<!-- _class: image-only -->
+<!-- _class: image-only landscape-image -->
 
 ## Processus 2TUP
 
@@ -129,14 +388,37 @@ Développement d'une application Helpdesk pour faciliter la déclaration et le s
 
 ---
 
-<!-- _class: image-only -->
+<!-- _class: image-only landscape-image -->
 
 ## Design Thinking
 
 ![Design Thinking](../rapport/design_thinking/design_thinking.jpg)
 
 ---
+<!-- _class: sprints -->
 
+## Planification
+
+Le projet est organisé en plusieurs sprints:
+
+
+**Sprint 01 — Gestion des produits**
+- CRUD Product.
+- Affichage des produits dans la plateforme.
+- Diagramme de cas d'utilisation.
+
+
+**Sprint 02 — Gestion des catégories**
+- CRUD Category.
+- Organisation des fichiers.
+- Séparation des responsabilités.
+
+**Sprint 03 — Architecture**
+- Utilisation du pattern DAO.
+- Architecture en 3 couches.
+- Séparation de la logique métier et des données.
+  
+------
 
 
 ## Branche fonctionnelle
@@ -174,10 +456,17 @@ Créer une plateforme Helpdesk qui permet de :
 
 ---
 
-## Diagramme de cas d'utilisation
+<!-- _class: image-only portrait-image -->
+
+## Diagramme de class
+![Diagramme de class](diagram-class.png)
 
 ---
+<!-- _class: image-only portrait-image -->
+## Diagramme de cas d'utilisateur
+![Diagramme de cas de utilisateur](diagram-cas-utilisation.png)
 
+---
 ## Stack technologique
 
 - **Backend actuel :** PHP Native
@@ -188,6 +477,8 @@ Créer une plateforme Helpdesk qui permet de :
 - **Diagrammes :** MCD · Diagramme de classes
 
 ---
+
+<!-- _class: architecture -->
 
 ## Architecture
 
@@ -211,49 +502,10 @@ DAO · PDO
 
 MySQL
 
----
-
-## Prototype Helpdesk
-
-- Tickets · Catégories · Utilisateurs
-- Création · Consultation · Modification · Suppression
-- Statuts · Suivi des tickets
-- Échanges entre client et support
 
 ---
 
-## Relations des données
-
-- Utilisateur
-- Ticket
-- Catégorie
-- Commentaire
-
-*Les associations et cardinalités suivent le MCD validé du projet.*
-
----
-
-## Structure technique
-
-- **Frontend :** HTML · CSS / Tailwind · JavaScript · Alpine.js
-- **Backend :** PHP Native · Controllers · Services · DAO
-- **Accès aux données :** PDO
-- **Données :** MySQL
-- **Organisation :** Frontend et Backend séparés
-
----
-
-## Diagramme de classes
-
----
-
-## Maquettes
-
----
-
-## Interfaces
-
----
+<!-- _class: conclusion -->
 
 ## Conclusion
 
@@ -264,7 +516,7 @@ MySQL
 
 ---
 
-<!-- _class: lead -->
+<!-- _class: lead closing -->
 <!-- _paginate: false -->
 
 # Merci pour votre attention !
